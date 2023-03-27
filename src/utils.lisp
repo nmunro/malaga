@@ -5,7 +5,8 @@
            #:get-checksum
            #:download-files
            #:process-users
-           #:download-file))
+           #:download-file
+           #:show-progress))
 
 (in-package malaga/utils)
 
@@ -42,3 +43,17 @@
   (flet ((map-csv-files (dir)
            (probe-file (pathname (format nil "~A/cards.csv" dir)))))
     (remove nil (mapcar #'map-csv-files (directory dropbox-location)))))
+
+(defun show-progress (&key (times 100) (delay 0.125))
+  (let ((spinners '("|" "/" "-" "\\" "-" "/" "-" "|")) (counter 0))
+    (dotimes (i times)
+      (if (>= counter 7)
+        (setf counter 0)
+        (setf counter (1+ counter)))
+
+    (format t "~,3f% ~A" (/ i times) (nth counter spinners))
+    (finish-output)
+    (sleep delay)
+
+    (dotimes (i 100)
+        (write-char #\Backspace)))))
