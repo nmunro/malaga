@@ -48,7 +48,7 @@
             :search-uri (cdr (assoc :search--uri set))))))
 
 (defun create-missing-card (card)
-  (unless (mito:find-dao 'malaga/models:scryfall-card :name (cdr (assoc :id card)))
+  (unless (mito:find-dao 'malaga/models:scryfall-card :id (cdr (assoc :id card)))
     (mito:create-dao 'malaga/models:scryfall-card
         :id (cdr (assoc :id card))
         :name (cdr (assoc :name card))
