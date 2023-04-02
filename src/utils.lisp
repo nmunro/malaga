@@ -6,9 +6,22 @@
            #:download-files
            #:process-users
            #:download-file
-           #:show-progress))
+           #:show-progress
+           #:with-file-lock))
 
 (in-package malaga/utils)
+
+(define-condition lock-exists-error (error)
+  ((message :initarg :message :initform "lock exists" :reader message)))
+
+(defmacro with-file-lock (path &body body)
+  `(progn
+    (when (probe-file ,path)
+        (error 'lock-exists-error :message (format nil "Lock File ~A exists" path)))
+
+    (open ,path :direction :probe :if-does-not-exist :create)
+    (unwind-protect (progn ,@body))
+    (delete-file ,path)))
 
 (defun check-file-needs-refreshing (file)
   (unless (probe-file file)
@@ -28,10 +41,10 @@
 
     (let ((cache-file (merge-pathnames (pathname (format nil "~A.json" (getf file :type))) cache-dir)))
       (unless (check-file-needs-refreshing cache-file)
-        (format t "File ~A is up to date!~%" cache-file)
+        (format t ">>> File ~A is up to date!~%" cache-file)
         (return-from download-file nil))
 
-      (format t "Downloading ~A to ~A~%" (getf file :type) cache-file)
+      (format t ">>> Downloading ~A~%" (getf file :type))
       (serapeum:write-stream-into-file (dex:get (getf file :uri) :want-stream t) cache-file :if-exists :supersede))))
 
 (defun get-checksum (path)

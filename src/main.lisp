@@ -8,8 +8,9 @@
 (ql:quickload :ironclad)
 
 (defun sync-scryfall ()
+  ; Put in a check for a update lock file here
   (let ((config (malaga/config:load-config)))
-    (malaga/db:with-mito-connection (merge-pathnames (cdr (assoc :config-db config)) (cdr (assoc :config config)))
+    (malaga/db:with-mito-connection (merge-pathnames (malaga/config:config-db config) (malaga/config:config config))
       (mito:ensure-table-exists 'malaga/models:scryfall-set)
       (mito:ensure-table-exists 'malaga/models:scryfall-card)
       (malaga/scryfall:sync-data config))))
