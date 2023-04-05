@@ -6,7 +6,6 @@
 (in-package malaga)
 
 (defun sync-scryfall-data ()
-  ; Put in a check for a update lock file here
   (let ((config (malaga/config:load-config)))
     (handler-case (malaga/utils:with-file-lock (malaga/config:lock-file config)
       (malaga/db:with-mito-connection (merge-pathnames (malaga/config:config-db config) (malaga/config:config config))
