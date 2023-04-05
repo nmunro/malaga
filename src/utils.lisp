@@ -7,7 +7,9 @@
            #:process-users
            #:download-file
            #:show-progress
-           #:with-file-lock))
+           #:with-file-lock
+           #:lock-exists-error
+           #:message))
 
 (in-package malaga/utils)
 
@@ -17,7 +19,7 @@
 (defmacro with-file-lock (path &body body)
   `(progn
     (when (probe-file ,path)
-        (error 'lock-exists-error :message (format nil "Lock File ~A exists" path)))
+        (error 'lock-exists-error :message (format nil "lock file ~A exists" ,path)))
 
     (open ,path :direction :probe :if-does-not-exist :create)
     (unwind-protect (progn ,@body))
