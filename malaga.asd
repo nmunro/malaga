@@ -6,13 +6,16 @@
                :dexador
                :osicat
                :cl-json
+               :cl-csv
                :str
+               :data-table
                :mito)
   :components ((:module "src"
                 :components
                 ((:file "config")
                  (:file "models")
                  (:file "utils")
+                 (:file "user")
                  (:file "scryfall")
                  (:file "db")
                  (:file "main"))))
