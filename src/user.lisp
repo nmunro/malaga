@@ -56,20 +56,23 @@
     (dotimes (index (1- (length (data-table:rows csv))))
       (let* ((card (mito:find-dao 'malaga/models:scryfall-card :id (data-table:data-table-value csv :row-idx index :col-name "scryfall_id")))
              (collection (mito:find-dao 'malaga/models:collection :user user :card card)))
+        ; @NOTE
+        ; mark the current date time
+        ; if the collection exists, update the quantity and update_date to date time
+        ; if it doesn't create it
         (if collection
           (update-collection-record csv collection index)
           (create-collection-record csv user card index))))))
 
 (defun find-card-lists (dropbox-location)
-  (flet ((map-csv-files (dir) (probe-file (pathname (format nil "~A/cards.csv" dir)))))
-    (remove nil (mapcar #'map-csv-files (directory dropbox-location)))))
+  (loop :for dir :in (directory dropbox-location)
+        :for path = (probe-file (pathname (format nil "~A/cards.csv" dir)))
+        :if path :collect path))
 
 (defun process-users (config)
   (dolist (user-list (find-card-lists (malaga/config:dropbox-location config)))
     ; Delete any users in the db who don't have a file anymore
     (delete-old-users config)
-
-    ; @NOTE: Remember to delete orphaned cards as part of the above function call
 
     ; Create any newly found users
     (create-new-user user-list)
@@ -81,4 +84,7 @@
         (format t "Not Updating: ~A~%" (slot-value user 'malaga/models:name)))
 
       ; Cleanup old user data
-      nil)))
+      ; @NOTE: Remember to delete orphaned cards as part of the above function call
+      ; Get the current datetime and pass it into the update-user function above to update rows
+      ; Delete anything earlier than the datetime
+      (delete-stale-data))))
