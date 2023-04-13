@@ -8,6 +8,7 @@
                :cl-json
                :cl-csv
                :str
+               :local-time
                :data-table
                :mito)
   :components ((:module "src"

@@ -1,6 +1,7 @@
 (defpackage malaga/models
   (:use :cl)
   (:export #:user
+           #:card
            #:id
            #:name
            #:file
@@ -9,6 +10,7 @@
            #:quantity
            #:scryfall-set
            #:scryfall-card
+           #:delete
            #:sync-models))
 
 (in-package malaga/models)
@@ -42,9 +44,10 @@
   (:unique-keys name file))
 
 (mito:deftable collection ()
-  ((user  :col-type user)
-   (card  :col-type scryfall-card)
-   (quantity :col-type (:integer)))
+  ((user     :col-type user)
+   (card     :col-type scryfall-card)
+   (quantity :col-type (:integer))
+   (delete   :col-type (:varchar 1)))
   (:unique-keys (user card)))
 
 (defun sync-models ()

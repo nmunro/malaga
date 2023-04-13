@@ -34,19 +34,24 @@
 (defun update-user-p (user)
   (string/= (slot-value user 'malaga/models:checksum) (get-checksum (slot-value user 'malaga/models:file))))
 
-(defun delete-stale-data ()
-  nil)
+(defun delete-stale-data (user)
+  (let ((records (mito:select-dao 'malaga/models:collection (sxql:where (:and (:= :delete "Y") (:= :user user))))))
+    (when records
+      (format t "Deleting stale user data: ~A~%" (slot-value user 'malaga/models:name))
+      (mito:delete-by-values 'malaga/models:collection :user user :delete "Y"))))
 
-(defun create-collection-record (csv user card index)
+(defun create-collection-record (user csv card index)
   (mito:create-dao
     'malaga/models:collection
     :user user
     :card card
+    :delete "N"
     :quantity (data-table:data-table-value csv :row-idx index :col-name "quantity")))
 
-(defun update-collection-record (csv collection index)
+(defun update-collection-record (user csv collection index)
   (let ((quantity (parse-integer (data-table:data-table-value csv :row-idx index :col-name "quantity"))))
     (setf (slot-value collection 'malaga/models:quantity) quantity)
+    (setf (slot-value collection 'malaga/models:delete) "N")
     (mito:save-dao collection)))
 
 (defun update-user (user)
@@ -56,13 +61,9 @@
     (dotimes (index (1- (length (data-table:rows csv))))
       (let* ((card (mito:find-dao 'malaga/models:scryfall-card :id (data-table:data-table-value csv :row-idx index :col-name "scryfall_id")))
              (collection (mito:find-dao 'malaga/models:collection :user user :card card)))
-        ; @NOTE
-        ; mark the current date time
-        ; if the collection exists, update the quantity and update_date to date time
-        ; if it doesn't create it
         (if collection
-          (update-collection-record csv collection index)
-          (create-collection-record csv user card index))))))
+          (update-collection-record user csv collection index)
+          (create-collection-record user csv card index))))))
 
 (defun find-card-lists (dropbox-location)
   (loop :for dir :in (directory dropbox-location)
@@ -70,21 +71,33 @@
         :if path :collect path))
 
 (defun process-users (config)
-  (dolist (user-list (find-card-lists (malaga/config:dropbox-location config)))
-    ; Delete any users in the db who don't have a file anymore
-    (delete-old-users config)
+  (let ((current-time (get-universal-time)))
+    (dolist (user-list (find-card-lists (malaga/config:dropbox-location config)))
+      ; Delete any users in the db who don't have a file anymore
+      (delete-old-users config)
 
-    ; Create any newly found users
-    (create-new-user user-list)
+      ; Create any newly found users
+      (create-new-user user-list)
 
-    ; Update users
-    (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-list))))))
-      (if (update-user-p user)
-        (update-user user)
-        (format t "Not Updating: ~A~%" (slot-value user 'malaga/models:name)))
+      ; Mark all data to be deleted
+      (dolist (collection (mito:select-dao 'malaga/models:collection))
+        (setf (slot-value collection 'malaga/models:delete) "Y")
+        (mito:save-dao collection))
 
-      ; Cleanup old user data
-      ; @NOTE: Remember to delete orphaned cards as part of the above function call
-      ; Get the current datetime and pass it into the update-user function above to update rows
-      ; Delete anything earlier than the datetime
-      (delete-stale-data))))
+      ; Update users
+      (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-list))))))
+        (if (update-user-p user)
+          (update-user user)
+          (format t "Not Updating: ~A~%" (slot-value user 'malaga/models:name)))
+
+        (delete-stale-data user)))))
+
+;; (let ((config (malaga/config:load-config)))
+;;   (malaga/db:with-mito-connection (malaga/config:config-db config)
+;;     (let* ((user (mito:find-dao 'malaga/models:user :name "nmunro"))
+;;            (collection (car (mito:select-dao 'malaga/models:collection (sxql:where (:= :user user))))))
+;;       (format t "Test: ~A~%" collection)
+;;       (setf (slot-value collection 'malaga/models:ts) 0)
+;;       (mito:save-dao collection))))
+
+;; (ql:quickload :malaga)
