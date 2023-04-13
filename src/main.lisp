@@ -18,10 +18,3 @@
     (malaga/db:with-mito-connection (malaga/config:config-db config)
         (malaga/models:sync-models)
         (malaga/user:process-users config))))
-
-;; (sync-player-data)
-;; (ql:quickload :malaga)
-
-;; (let ((config (malaga/config:load-config)))
-;;   (malaga/db:with-mito-connection (malaga/config:config-db config)
-;;     ))

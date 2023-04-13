@@ -71,33 +71,22 @@
         :if path :collect path))
 
 (defun process-users (config)
-  (let ((current-time (get-universal-time)))
-    (dolist (user-list (find-card-lists (malaga/config:dropbox-location config)))
-      ; Delete any users in the db who don't have a file anymore
-      (delete-old-users config)
+  (dolist (user-list (find-card-lists (malaga/config:dropbox-location config)))
+    ; Delete any users in the db who don't have a file anymore
+    (delete-old-users config)
 
-      ; Create any newly found users
-      (create-new-user user-list)
+    ; Create any newly found users
+    (create-new-user user-list)
 
-      ; Mark all data to be deleted
-      (dolist (collection (mito:select-dao 'malaga/models:collection))
-        (setf (slot-value collection 'malaga/models:delete) "Y")
-        (mito:save-dao collection))
+    ; Mark all data to be deleted
+    (dolist (collection (mito:select-dao 'malaga/models:collection))
+      (setf (slot-value collection 'malaga/models:delete) "Y")
+      (mito:save-dao collection))
 
-      ; Update users
-      (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-list))))))
-        (if (update-user-p user)
-          (update-user user)
-          (format t "Not Updating: ~A~%" (slot-value user 'malaga/models:name)))
+    ; Update users
+    (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-list))))))
+      (if (update-user-p user)
+        (update-user user)
+        (format t "Not Updating: ~A~%" (slot-value user 'malaga/models:name)))
 
-        (delete-stale-data user)))))
-
-;; (let ((config (malaga/config:load-config)))
-;;   (malaga/db:with-mito-connection (malaga/config:config-db config)
-;;     (let* ((user (mito:find-dao 'malaga/models:user :name "nmunro"))
-;;            (collection (car (mito:select-dao 'malaga/models:collection (sxql:where (:= :user user))))))
-;;       (format t "Test: ~A~%" collection)
-;;       (setf (slot-value collection 'malaga/models:ts) 0)
-;;       (mito:save-dao collection))))
-
-;; (ql:quickload :malaga)
+      (delete-stale-data user))))
