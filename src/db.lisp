@@ -4,7 +4,10 @@
 
 (in-package malaga/db)
 
-(defmacro with-mito-connection (database-name &body body)
-  `(let ((mito:*connection* (dbi:connect :sqlite3 :database-name ,database-name)))
+(defmacro with-mito-connection ((conf config) &body body)
+  `(let* ((,conf ,config)
+          (database-name (merge-pathnames (malaga/config:config-db ,config) (malaga/config:config ,config)))
+          (mito:*connection* (dbi:connect :sqlite3 :database-name database-name)))
+    (malaga/models:sync-models)
     (unwind-protect (progn ,@body))
     (dbi:disconnect mito:*connection*)))

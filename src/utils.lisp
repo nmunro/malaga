@@ -4,6 +4,7 @@
            #:download-file
            #:with-file-lock
            #:lock-exists-error
+           #:get-checksum
            #:message))
 
 (in-package malaga/utils)
@@ -45,3 +46,7 @@
         (format t ">>> Downloading ~A~%" (getf file :type)))
 
       (serapeum:write-stream-into-file (dex:get (getf file :uri) :want-stream t) cache-file :if-exists :supersede))))
+
+(defun get-checksum (path)
+  (let ((digest (ironclad:make-digest :md5)))
+    (format nil "~{~A~}" (coerce (ironclad:digest-file digest path) 'list))))
