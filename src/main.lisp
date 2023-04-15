@@ -14,3 +14,4 @@
 (defun sync-player-data ()
   (malaga/db:with-mito-connection (config (malaga/config:load-config))
     (malaga/user:process-users config)))
+

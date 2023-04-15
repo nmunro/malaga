@@ -7,25 +7,20 @@
 (in-package malaga/scryfall)
 
 (defun ingest-data (config)
-  (let ((file (malaga/config:all-card-data config))
-        (start (local-time:now)))
-    (format t ">>> Started: ~A~%" start)
-    (with-open-file (in file :direction :input :if-does-not-exist nil)
-      (let ((total-count (loop :for line = (read-line in nil nil) :for count :from 0 :unless line :return count)))
-        ; Reset file pointer to 0
-        (file-position in 0)
+  (with-open-file (in (malaga/config:all-card-data config) :direction :input :if-does-not-exist nil)
+    (format t ">>> Started: ~A~%" (local-time:now))
 
-        (loop :for line = (read-line in nil nil)
-              :for count :from 1
-              :while line :do (process-scryfall-object line count total-count config))))
-    (format t ">>> 100.000%~%")
-    (format t ">>> Stopped: ~A~%" (local-time:now))))
+    (let ((item-count (loop :for line = (read-line in nil nil) :for count :from 0 :unless line :return count)))
+      ; Reset file pointer to 0
+      (file-position in 0)
+      (loop :for l = (read-line in nil nil) :for c :from 1 :while l :do (process-scryfall-object l c item-count config))))
+  (format t ">>> 100.000%~%")
+  (format t ">>> Stopped: ~A~%" (local-time:now)))
 
 (defun process-scryfall-object (object count total-count config)
   (when (str:starts-with-p "{" (str:trim object))
     (format t ">>> ~,3f%" (* 100 (/ count total-count)))
     (finish-output)
-    (sleep 1)
 
     (dotimes (i 16)
         (write-char #\Backspace))
@@ -36,7 +31,7 @@
 
 (defun create-missing-set (set-code config)
   (unless (mito:find-dao 'malaga/models:scryfall-set :code set-code)
-    (let ((set (json:decode-json-from-string (dex:get (format nil "~A/~A" (malaga/config:get-url config :sets) set-code)))))
+    (let ((set (json:decode-json-from-string (malaga/utils:get-data (format nil "~A/~A" (malaga/config:get-url config :sets) set-code)))))
         (mito:create-dao 'malaga/models:scryfall-set
             :id (cdr (assoc :id set))
             :code (cdr (assoc :code set))
@@ -60,14 +55,13 @@
         :set (mito:find-dao 'malaga/models:scryfall-set :code (cdr (assoc :set card))))))
 
 (defun get-latest-bulk-data (config)
-  (with-input-from-string (json-stream (dexador:get (malaga/config:get-url config :bulk-data)))
+  (with-input-from-string (json-stream (malaga/utils:get-data (malaga/config:get-url config :bulk-data)))
     (loop :for data :in (cdr (assoc :data (json:decode-json json-stream)))
           :collect `(:type ,(cdr (assoc :type data)) :uri ,(cdr (assoc :download--uri data))))))
 
 (defun sync-bulk-data (config)
-  (let ((latest-data (get-latest-bulk-data config))
-        (path (merge-pathnames (malaga/config:config-data config) (malaga/config:config config))))
-    (malaga/utils:download-files latest-data path)))
+  (let ((path (merge-pathnames (malaga/config:config-data config) (malaga/config:config config))))
+    (malaga/utils:download-files (get-latest-bulk-data config) path)))
 
 (defun sync-data (config)
   (sync-bulk-data config)

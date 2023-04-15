@@ -64,10 +64,10 @@
 
 (defun process-users (config)
   (dolist (user-path (find-card-lists (malaga/config:dropbox-location config)))
-    (sync-users config user-path)
-
     ; Mark all data to be deleted
     (mark-records-as-stale)
+
+    (sync-users config user-path)
 
     ; Update users
     (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-path))))))

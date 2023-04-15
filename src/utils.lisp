@@ -5,6 +5,7 @@
            #:with-file-lock
            #:lock-exists-error
            #:get-checksum
+           #:get-data
            #:message))
 
 (in-package malaga/utils)
@@ -50,3 +51,9 @@
 (defun get-checksum (path)
   (let ((digest (ironclad:make-digest :md5)))
     (format nil "~{~A~}" (coerce (ironclad:digest-file digest path) 'list))))
+
+(defun get-data (url &key (retries 5) (wait 3))
+  (let ((retry-request (dex:retry-request retries :interval wait)))
+    (handler-bind ((dex:http-request-failed retry-request)
+                  (error #'(lambda () (invoke-restart 'abort))))
+      (dex:get url))))
