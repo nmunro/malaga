@@ -21,20 +21,20 @@
 (defun update-user-p (user)
   (string/= (slot-value user 'malaga/models:checksum) (malaga/utils:get-checksum (slot-value user 'malaga/models:file))))
 
-(defun delete-stale-data (user)
-  (mito:delete-by-values 'malaga/models:collection :user user :delete "Y"))
+(defun delete-stale-data ()
+  (mito:delete-by-values 'malaga/models:collection :updated "N"))
 
 (defun create-collection-record (user csv card index)
   (mito:create-dao
     'malaga/models:collection
     :user user
     :card card
-    :delete "N"
+    :updated "Y"
     :quantity (data-table:data-table-value csv :row-idx index :col-name "quantity")))
 
 (defun update-collection-record (user csv collection index)
   (setf (slot-value collection 'malaga/models:quantity) (parse-integer (data-table:data-table-value csv :row-idx index :col-name "quantity")))
-  (setf (slot-value collection 'malaga/models:delete) "N")
+  (setf (slot-value collection 'malaga/models:updated) "Y")
   (mito:save-dao collection))
 
 (defun update-user (user)
@@ -55,7 +55,7 @@
 
 (defun mark-records-as-stale ()
   (dolist (collection (mito:select-dao 'malaga/models:collection))
-      (setf (slot-value collection 'malaga/models:delete) "Y")
+      (setf (slot-value collection 'malaga/models:updated) "N")
       (mito:save-dao collection)))
 
 (defun sync-users (config path)
@@ -71,7 +71,8 @@
 
     ; Update users
     (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-path))))))
+      (format t "Processing: ~A~%" (slot-value user 'malaga/models:name))
       (when (update-user-p user)
         (update-user user))
 
-      (delete-stale-data user))))
+      (delete-stale-data))))

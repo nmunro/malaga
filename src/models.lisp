@@ -10,7 +10,7 @@
            #:quantity
            #:scryfall-set
            #:scryfall-card
-           #:delete
+           #:updated
            #:sync-models))
 
 (in-package malaga/models)
@@ -28,13 +28,13 @@
   (:unique-keys id code name scryfall-uri uri))
 
 (mito:deftable scryfall-card ()
-  ((id                :col-type (:varchar 36) :primary-key t)
-   (name              :col-type (:varchar 2048))
-   (lang              :col-type (:varchar 32))
-   (scryfall-uri      :col-type (:varchar 255))
-   (uri               :col-type (:varchar 255))
-   (rarity            :col-type (:varchar 16))
-   (set               :col-type scryfall-set))
+  ((id           :col-type (:varchar 36) :primary-key t)
+   (name         :col-type (:varchar 2048))
+   (lang         :col-type (:varchar 32))
+   (scryfall-uri :col-type (:varchar 255))
+   (uri          :col-type (:varchar 255))
+   (rarity       :col-type (:varchar 16))
+   (set          :col-type scryfall-set))
   (:unique-keys id scryfall-uri uri))
 
 (mito:deftable user ()
@@ -47,7 +47,7 @@
   ((user     :col-type user)
    (card     :col-type scryfall-card)
    (quantity :col-type (:integer))
-   (delete   :col-type (:varchar 1)))
+   (updated  :col-type (:varchar 1)))
   (:unique-keys (user card)))
 
 (defun sync-models ()
