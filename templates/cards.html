@@ -1,0 +1,23 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+{% if player %}
+    <h1>Player: {{ player.name }} ({{ cards|length }})</h1>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for collection in cards %}
+        <tr>
+            <td><a href="/cards/{{ collection.card.id }}">{{ collection.card.name }}</a></td>
+            <td>{{ collection.quantity }}</td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

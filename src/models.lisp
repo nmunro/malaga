@@ -10,6 +10,7 @@
            #:quantity
            #:scryfall-set
            #:scryfall-card
+           #:scryfall-uri
            #:updated
            #:sync-models))
 

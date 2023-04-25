@@ -10,15 +10,20 @@
                :str
                :local-time
                :data-table
-               :mito)
+               :clack
+               :ningle
+               :mito
+               :djula)
   :components ((:module "src"
                 :components
                 ((:file "config")
-                 (:file "models")
                  (:file "utils")
-                 (:file "user")
-                 (:file "scryfall")
+                 (:file "models")
                  (:file "db")
+                 (:file "controllers")
+                 (:file "views")
+                 (:file "player")
+                 (:file "scryfall")
                  (:file "main"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))

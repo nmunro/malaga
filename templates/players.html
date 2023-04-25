@@ -1,0 +1,8 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+    <ul>
+      {% for player in players %}
+        <li><a href="/players/{{ player.name }}">{{ player.name }}</a></li>
+      {% endfor %}
+    </ul>
+{% endblock %}

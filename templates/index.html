@@ -1,0 +1,33 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+<form class="row g-3">
+  <div class="col-md-6">
+    <label for="search" class="form-label">Search:</label>
+    <input type="text" class="form-control" id="search" name="search">
+  </div>
+
+  <div class="col-md-6">
+    <label for="player" class="form-label">Player:</label>
+    <select id="player" name="player" class="form-select">
+        <option value="-all-">All</option>
+        {% for player in players %}
+            <option value="{{ player.name }}">{{ player.name }}</option>
+        {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-12">
+    <label>&nbsp;</label>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+</form>
+
+<div class="row">
+  <h1>Seen this card?</h1>
+  {% if card %}
+    <h2><a href="{{ card.scryfall-uri }}">{{ card.name }}</a></h2>
+  {% else %}
+    <p>No Card</p>
+  {% endif %}
+</div>
+{% endblock %}

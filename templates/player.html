@@ -1,0 +1,5 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+    <h1>Player: {{ player.name }}</h1>
+    <a href="/players/{{ player.name }}/cards">Cards</a>
+{% endblock %}

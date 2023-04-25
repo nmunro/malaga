@@ -1,21 +1,21 @@
-(defpackage malaga/user
+(defpackage malaga/player
   (:use :cl)
-  (:export #:process-users))
+  (:export #:process-players))
 
-(in-package malaga/user)
+(in-package malaga/player)
 
 (defun create-new-user (file)
   (let ((name (car (last (pathname-directory file)))))
     (unless (mito:find-dao 'malaga/models:user :name name)
         (mito:create-dao 'malaga/models:user :name name :file (namestring file) :checksum ""))))
 
-(defun get-list-of-users-from-files (config)
+(defun get-list-of-players-from-files (config)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists (malaga/config:dropbox-location config))))
 
-(defun delete-old-users (config)
-  (let ((db-users   (mapcar #'(lambda (user) (slot-value user 'malaga/models:name)) (mito:select-dao 'malaga/models:user)))
-        (file-users (get-list-of-users-from-files config)))
-    (dolist (user-name (set-difference db-users file-users :test #'equal))
+(defun delete-old-players (config)
+  (let ((db-players   (mapcar #'(lambda (user) (slot-value user 'malaga/models:name)) (mito:select-dao 'malaga/models:user)))
+        (file-players (get-list-of-players-from-files config)))
+    (dolist (user-name (set-difference db-players file-players :test #'equal))
       (mito:delete-by-values 'malaga/models:user :name user-name))))
 
 (defun update-user-p (user)
@@ -58,20 +58,16 @@
       (setf (slot-value collection 'malaga/models:updated) "N")
       (mito:save-dao collection)))
 
-(defun sync-users (config path)
-    (delete-old-users config)
-    (create-new-user path))
+(defun process-players (config)
+  (mark-records-as-stale)
+  (delete-old-players config)
 
-(defun process-users (config)
   (dolist (user-path (find-card-lists (malaga/config:dropbox-location config)))
-    ; Mark all data to be deleted
-    (mark-records-as-stale)
+    (create-new-user user-path)
 
-    (sync-users config user-path)
-
-    ; Update users
     (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-path))))))
-      (format t "Processing: ~A~%" (slot-value user 'malaga/models:name))
+      (format t ">>> Processing: ~A~%" (slot-value user 'malaga/models:name))
+
       (when (update-user-p user)
         (update-user user))
 

@@ -1,0 +1,14 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+<h1><a href="{{ card.scryfall-uri }}">{{ card.name }}</a></h1>
+{% if players %}
+    <p>
+    Players who own this:
+    <ul>
+      {% for player in players %}
+        <li><a href="/players/{{ player.name }}">{{ player.name }}</a></li>
+      {% endfor %}
+    </ul>
+    </p>
+{% endif %}
+{% endblock %}
