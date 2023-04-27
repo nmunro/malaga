@@ -7,7 +7,8 @@
            #:card-players
            #:players
            #:player
-           #:player-cards))
+           #:player-cards
+           #:search-results))
 
 (in-package malaga/views)
 
@@ -49,6 +50,14 @@
       (djula:render-template* (djula:compile-template* "cards.html") nil
                               :player user
                               :cards cards))))
+
+(defun search-results (params)
+  (let ((search-string (format nil "%~A%" (cdr (assoc "search" params :test #'string=))))
+        (user-name (cdr (assoc "player" params :test #'string=))))
+    (malaga/db:with-mito-connection (conf (malaga/config:load-config))
+      (alexandria:if-let (user (mito:find-dao 'malaga/models:user :name user-name))
+        (djula:render-template* (djula:compile-template* "cards.html") nil :player user :cards (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card) (sxql:inner-join :scryfall_card :on (:= :scryfall_card.id :collection.card_id)) (sxql:where (:and (:= :user user) (:like :name search-string)))))
+        (djula:render-template* (djula:compile-template* "cards.html") nil :player `(:name "All") :cards (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card) (sxql:inner-join :scryfall_card :on (:= :scryfall_card.id :collection.card_id)) (sxql:where (:like :name search-string))))))))
 
 (defun Http404 (params)
   (setf (lack.response:response-status ningle:*response*) 404)

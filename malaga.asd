@@ -3,6 +3,7 @@
   :author "nmunro"
   :license "BSD3-Clause"
   :depends-on (:serapeum
+               :alexandria
                :dexador
                :osicat
                :cl-json
