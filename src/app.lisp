@@ -9,8 +9,7 @@
 (djula:add-template-directory (asdf:system-relative-pathname "malaga" "templates/"))
 
 (setf (ningle:route +app+ "/") #'malaga/views:index)
-(setf (ningle:route +app+ "/cards" :method :GET) #'malaga/views:cards)
-(setf (ningle:route +app+ "/cards" :method :POST) #'malaga/views:search-results)
+(setf (ningle:route +app+ "/cards") #'malaga/views:cards)
 (setf (ningle:route +app+ "/cards/:card") #'malaga/views:card)
 (setf (ningle:route +app+ "/players") #'malaga/views:players)
 (setf (ningle:route +app+ "/players/:player") #'malaga/views:player)

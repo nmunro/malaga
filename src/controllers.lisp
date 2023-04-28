@@ -28,9 +28,11 @@
 (defun get-players-by-card (card)
   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
 
-(defun get-all-cards ()
+(defun get-all-cards (&key (include-users nil))
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
-    (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card))))
+    (if include-users
+        (add-user-to-collections (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card)))
+        (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card)))))
 
 (defun get-card-by-id (id)
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
