@@ -18,11 +18,11 @@
 
 (defun index (params)
   (declare (ignore params))
-  (render "index.html" :players (malaga/controllers:all-players) :card (malaga/controllers:get-random-card)))
+  (render "index.html" :players (malaga/controllers:get-all-players) :card (malaga/controllers:get-random-card)))
 
 (defun cards (params)
   (declare (ignore params))
-  (render "cards.html" :cards (malaga/controllers:all-cards)))
+  (render "cards.html" :player '(:name "All") :cards (malaga/controllers:get-all-cards)))
 
 (defun search-results (params)
   (let ((search (format nil "%~A%" (cdr (assoc "search" params :test #'string=))))
@@ -37,7 +37,7 @@
 
 (defun players (params)
   (declare (ignore params))
-  (render "players.html" :players (malaga/controllers:all-players)))
+  (render "players.html" :players (malaga/controllers:get-all-players)))
 
 (defun player (params)
   (render "player.html" :player (malaga/controllers:get-player-by-name (cdr (assoc :player params :test #'string=)))))

@@ -1,10 +1,10 @@
 (defpackage malaga/controllers
   (:use :cl)
-  (:export #:all-players
+  (:export #:get-all-players
            #:get-player-by-id
            #:get-player-by-name
            #:get-players-by-card
-           #:all-cards
+           #:get-all-cards
            #:get-cards-by-player
            #:get-card-by-id
            #:get-cards-by-search
@@ -13,7 +13,7 @@
 
 (in-package malaga/controllers)
 
-(defun all-players ()
+(defun get-all-players ()
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
     (mito:retrieve-dao 'malaga/models:user)))
 
@@ -28,7 +28,7 @@
 (defun get-players-by-card (card)
   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
 
-(defun all-cards ()
+(defun get-all-cards ()
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
     (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card))))
 
