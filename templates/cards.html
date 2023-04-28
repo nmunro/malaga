@@ -4,11 +4,14 @@
     <h1>Player: {{ player.name }} ({{ cards|length }})</h1>
 {% endif %}
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Name</th>
       <th>Quantity</th>
+      {% if player.name == "All" %}
+        <th>User</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -16,6 +19,9 @@
         <tr>
             <td><a href="/cards/{{ collection.card.id }}">{{ collection.card.name }}</a></td>
             <td>{{ collection.quantity }}</td>
+            {% if player.name == "All" %}
+              <td><a href="/players/{{ collection.user.name }}">{{ collection.user.name }}</a></td>
+            {% endif %}
         </tr>
     {% endfor %}
   </tbody>

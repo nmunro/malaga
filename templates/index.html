@@ -9,7 +9,7 @@
   <div class="col-md-6">
     <label for="player" class="form-label">Player:</label>
     <select id="player" name="player" class="form-select">
-        <option value="-all-">All</option>
+        <option value="">All</option>
         {% for player in players %}
             <option value="{{ player.name }}">{{ player.name }}</option>
         {% endfor %}
@@ -23,11 +23,9 @@
 </form>
 
 <div class="row">
-  <h1>Seen this card?</h1>
-  {% if card %}
-    <h2><a href="{{ card.scryfall-uri }}">{{ card.name }}</a></h2>
-  {% else %}
-    <p>No Card</p>
-  {% endif %}
+  <div class="col-12">
+    <h1>Seen this card?</h1>
+    <h2><a href="{{ card.scryfall-uri }}" target="blank">{{ card.name }}</a></h2>
+  </div>
 </div>
 {% endblock %}

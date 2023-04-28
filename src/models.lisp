@@ -1,6 +1,7 @@
 (defpackage malaga/models
   (:use :cl)
   (:export #:user
+           #:user-id
            #:card
            #:id
            #:name
