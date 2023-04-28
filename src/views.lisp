@@ -7,8 +7,7 @@
            #:card-players
            #:players
            #:player
-           #:player-cards
-           #:search-results))
+           #:player-cards))
 
 (in-package malaga/views)
 
