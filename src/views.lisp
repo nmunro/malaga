@@ -24,11 +24,12 @@
     (render "card.html" :card card :players (malaga/controllers:get-players-by-card card))))
 
 (defun cards (params)
-  (let ((search (format nil "%~A%" (cdr (assoc "search" params :test #'string=))))
-        (user-name (cdr (assoc "player" params :test #'string=))))
-    (render "cards.html"
-            :player (if (string= user-name "") '(:name "All") `(:name ,user-name))
-            :cards (malaga/controllers:get-cards-by-search search (malaga/controllers:get-player-by-name user-name)))))
+  (let* ((search (or (cdr (assoc "search" params :test #'string=)) ""))
+         (user-name (or (cdr (assoc "player" params :test #'string=)) ""))
+         (cards (malaga/controllers:get-cards-by-search search user-name)))
+    (if (string= user-name "")
+      (render "cards.html" :cards cards)
+      (render "cards.html" :player `(:name ,user-name) :cards cards))))
 
 (defun players (params)
   (declare (ignore params))
@@ -39,8 +40,15 @@
 
 (defun player-cards (params)
   (let ((player (malaga/controllers:get-player-by-name (cdr (assoc :player params :test #'string=)))))
-    (render "cards.html" :player player :cards (malaga/controllers:get-cards-by-player player))))
+    (render "cards.html"
+            :player player
+            :cards (malaga/controllers:get-cards-by-player player))))
 
 (defun Http404 (params)
   (setf (lack.response:response-status ningle:*response*) 404)
   (format nil "Page Not Found: ~A" (cdr (assoc :missing params :test #'string=))))
+
+(defun Http500 (params)
+  (declare (ignore params))
+  (setf (lack.response:response-status ningle:*response*) 500)
+  (format nil "Internal Server Error"))

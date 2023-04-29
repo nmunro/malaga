@@ -19,7 +19,8 @@
 
 (defun get-player-by-name (name)
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
-    (mito:find-dao 'malaga/models:user :name name)))
+    (handler-case (mito:find-dao 'malaga/models:user :name name)
+      (error (err) ""))))
 
 (defun get-player-by-id (id)
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
@@ -42,18 +43,15 @@
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
     (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:scryfall-card) (sxql:where (:= :user player)))))
 
-(defun get-cards-by-search (search &optional user)
+(defun get-cards-by-search (search player)
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
-    (if user
-      (add-user-to-collections (mito:select-dao 'malaga/models:collection
+    (add-user-to-collections (mito:select-dao 'malaga/models:collection
         (mito:includes 'malaga/models:scryfall-card)
         (sxql:inner-join :scryfall_card :on (:= :scryfall_card.id :collection.card_id))
-        (sxql:where (:and (:= :user user) (:like :name search)))))
 
-      (add-user-to-collections (mito:select-dao 'malaga/models:collection
-        (mito:includes 'malaga/models:scryfall-card)
-        (sxql:inner-join :scryfall_card :on (:= :scryfall_card.id :collection.card_id))
-        (sxql:where (:like :name search)))))))
+        (if (string= player "")
+          (sxql:where (:like :name (format nil "%~A%" search)))
+          (sxql:where (:and (:= :user (get-player-by-name player)) (:like :name (format nil "%~A%" search)))))))))
 
 (defun add-user-to-collections (collections)
   (malaga/db:with-mito-connection (conf (malaga/config:load-config))

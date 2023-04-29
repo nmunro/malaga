@@ -1,27 +1,31 @@
 {% extends "layouts/default.html" %}
 {% block content %}
-{% if player %}
-    <h1>Player: {{ player.name }} ({{ cards|length }})</h1>
-{% endif %}
+<div class="row">
+  <div class="col-12">
+    <h1>{% if player %}{{ player.name }}{% else %}All Players{% endif %}</h1>
+  </div>
+</div>
 
 <table class="table">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Quantity</th>
-      {% if player.name == "All" %}
-        <th>User</th>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      {% if not player %}
+        <th scope="col">Player</th>
       {% endif %}
+      <th scope="col">Quantity</th>
     </tr>
   </thead>
   <tbody>
     {% for collection in cards %}
         <tr>
-            <td><a href="/cards/{{ collection.card.id }}">{{ collection.card.name }}</a></td>
-            <td>{{ collection.quantity }}</td>
-            {% if player.name == "All" %}
-              <td><a href="/players/{{ collection.user.name }}">{{ collection.user.name }}</a></td>
-            {% endif %}
+          <th scope="col">{{ forloop.counter }}</th>
+          <td><a href="/cards/{{ collection.card.id }}">{{ collection.card.name }}</a></td>
+          {% if not player %}
+            <td><a href="/players/{{ collection.user.name }}">{{ collection.user.name }}</a></td>
+          {% endif %}
+          <td>{{ collection.quantity }}</td>
         </tr>
     {% endfor %}
   </tbody>
