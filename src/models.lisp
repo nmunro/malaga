@@ -6,29 +6,24 @@
            #:card
            #:id
            #:name
+           #:lang
            #:file
            #:checksum
            #:collection
            #:quantity
-           #:set
            #:scryfall-uri
-           #:card-art
+           #:uri
+           #:price-usd
+           #:price-usd-foil
+           #:price-usd-etched
+           #:price-eur
+           #:price-eur-foil
+           #:price-eur-etched
            #:updated
+           #:set
            #:sync-models))
 
 (in-package malaga/models)
-
-(mito:deftable set ()
-  ((id           :col-type (:varchar 36) :primary-key t)
-   (code         :col-type (:varchar 5))
-   (name         :col-type (:varchar 255))
-   (set-type     :col-type (:varchar 32))
-   (card-count   :col-type (:integer))
-   (scryfall-uri :col-type (:varchar 255))
-   (uri          :col-type (:varchar 255))
-   (icon-svg-uri :col-type (:varchar 255))
-   (search-uri   :col-type (:varchar 255)))
-  (:unique-keys id code name scryfall-uri uri))
 
 (mito:deftable card ()
   ((id               :col-type (:varchar 36) :primary-key t)
@@ -43,15 +38,8 @@
    (price-eur        :col-type (:real))
    (price-eur-foil   :col-type (:real))
    (price-eur-etched :col-type (:real))
-   (set              :col-type set))
+   (set              :col-type (:varchar 16)))
   (:unique-keys id scryfall-uri uri))
-
-(mito:deftable card-art ()
-  ((id   :col-type (:varchar 36) :primary-key t)
-   (type :col-type (:varchar 32))
-   (uri  :col-type (:varchar 2048))
-   (card :col-type card))
-  (:unique-key id))
 
 (mito:deftable user ()
   ((name     :col-type (:varchar 255))
@@ -67,8 +55,6 @@
   (:unique-keys (user card)))
 
 (defun sync-models ()
-  (mito:ensure-table-exists 'set)
   (mito:ensure-table-exists 'card)
   (mito:ensure-table-exists 'user)
-  (mito:ensure-table-exists 'collection)
-  (mito:ensure-table-exists 'card-art))
+  (mito:ensure-table-exists 'collection))

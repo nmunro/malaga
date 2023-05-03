@@ -1,7 +1,6 @@
 (defpackage malaga/controllers
   (:use :cl)
-  (:shadow #:set
-           #:random)
+  (:shadow #:random)
   (:export #:model
            #:create
            #:get-or-create
@@ -15,11 +14,9 @@
            #:random
            #:user
            #:collection
-           #:set
            #:card
            #:+user+
            #:+collection+
-           #:+set+
            #:+card+))
 
 (in-package malaga/controllers)
@@ -160,9 +157,6 @@
 (defclass collection (controller)
   ((model :initform 'malaga/models:collection :reader model)))
 
-(defclass set (controller)
-  ((model :initform 'malaga/models:set :reader model)))
-
 (defclass card (controller)
   ((model :initform 'malaga/models:card :reader model)))
 
@@ -196,7 +190,6 @@
 
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))
-(defvar +set+ (make-instance 'set))
 (defvar +card+ (make-instance 'card))
 
 ;; (defun get-players-by-card (card)

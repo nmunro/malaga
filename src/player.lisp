@@ -4,8 +4,12 @@
 
 (in-package malaga/player)
 
+(defun get-username-from-path (file)
+  (car (last (pathname-directory file))))
+
 (defun create-new-user (file)
-  (let ((name (car (last (pathname-directory file)))))
+  (let ((name (get-username-from-path file)))
+    ;; (malaga/controllers:get-or-create )
     (unless (mito:find-dao 'malaga/models:user :name name)
         (mito:create-dao 'malaga/models:user :name name :file (namestring file) :checksum ""))))
 
@@ -58,11 +62,15 @@
       (setf (slot-value collection 'malaga/models:updated) "N")
       (mito:save-dao collection)))
 
+(defun get-user-profile-md ()
+  nil)
+
 (defun process-players (config)
   (mark-records-as-stale)
   (delete-old-players config)
 
   (dolist (user-path (find-card-lists (malaga/config:dropbox-location config)))
+    ; replace this with a call to 'get-or-create'
     (create-new-user user-path)
 
     (let ((user (mito:find-dao 'malaga/models:user :name (car (last (pathname-directory user-path))))))
