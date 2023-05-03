@@ -17,10 +17,12 @@
 
 (defun index (params)
   (declare (ignore params))
-  (render "index.html" :players (malaga/controllers:get-all-players) :card (malaga/controllers:get-random-card)))
+  (render "index.html"
+          :players (malaga/controllers:all malaga/controllers:+user+)
+          :card (malaga/controllers:random malaga/controllers:+card+)))
 
 (defun card (params)
-  (let ((card (malaga/controllers:get-card-by-id (cdr (assoc :card params :test #'string=)))))
+  (let ((card (malaga/controllers:one :id (cdr (assoc :card params :test #'string=)))))
     (render "card.html" :card card :players (malaga/controllers:get-players-by-card card))))
 
 (defun cards (params)
@@ -33,13 +35,13 @@
 
 (defun players (params)
   (declare (ignore params))
-  (render "players.html" :players (malaga/controllers:get-all-players)))
+  (render "players.html" :players (malaga/controllers:all 'malaga/controllers:+user+)))
 
 (defun player (params)
-  (render "player.html" :player (malaga/controllers:get-player-by-name (cdr (assoc :player params :test #'string=)))))
+  (render "player.html" :player (malaga/controllers:one :name (cdr (assoc :player params :test #'string=)))))
 
 (defun player-cards (params)
-  (let ((player (malaga/controllers:get-player-by-name (cdr (assoc :player params :test #'string=)))))
+  (let ((player (malaga/controllers:one :name (cdr (assoc :player params :test #'string=)))))
     (render "cards.html"
             :player player
             :cards (malaga/controllers:get-cards-by-player player))))
