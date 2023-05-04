@@ -13,7 +13,7 @@
 
 (defun process-scryfall-object (object count total-count config)
   (when (str:starts-with-p "{" (str:trim object))
-    (format t ">>> ~,3f%" (* 100 (/ count total-count)))
+    (format t ">>> ~,2f%" (* 100 (/ count total-count)))
     (finish-output)
 
     (dotimes (i 16)

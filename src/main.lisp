@@ -5,6 +5,8 @@
 
 (in-package malaga)
 
+(malaga/models:sync-models)
+
 (defun sync-scryfall-data ()
   (malaga/db:with-mito-connection-and-conf (config (malaga/config:load-config))
     (handler-case (malaga/utils:with-file-lock (malaga/config:lock-file config)
@@ -13,4 +15,6 @@
 
 (defun sync-player-data ()
   (malaga/db:with-mito-connection-and-conf (config (malaga/config:load-config))
-    (malaga/player:process-players config)))
+    (handler-case (malaga/utils:with-file-lock (malaga/config:lock-file config)
+        (malaga/player:process-players config))
+      (malaga/utils:lock-exists-error (err) (format t "Can't update, ~A~%" (malaga/utils:message err))))))
