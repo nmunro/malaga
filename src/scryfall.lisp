@@ -33,6 +33,12 @@
         :price-eur (or (cdr (assoc :eur (cdr (assoc :prices card)))) 0)
         :price-eur-foil (or (cdr (assoc :eur-foil (cdr (assoc :prices card)))) 0)
         :price-eur-etched (or (cdr (assoc :eur-etched (cdr (assoc :prices card)))) 0)
+        :image-png (or (cdr (assoc :png (cdr (assoc :image--uris card)))) "")
+        :image-border-crop (or (cdr (assoc :border--crop (cdr (assoc :image--uris card)))) "")
+        :image-art-crop (or (cdr (assoc :art--crop (cdr (assoc :image--uris card)))) "")
+        :image-large (or (cdr (assoc :large (cdr (assoc :image--uris card)))) "")
+        :image-normal (or (cdr (assoc :normal (cdr (assoc :image--uris card)))) "")
+        :image-small (or (cdr (assoc :small (cdr (assoc :image--uris card)))) "")
         :set (cdr (assoc :set card))))))
 
 (defun get-latest-bulk-data (config)
