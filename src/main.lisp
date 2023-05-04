@@ -5,7 +5,8 @@
 
 (in-package malaga)
 
-(malaga/models:sync-models)
+(malaga/db:with-mito-connection (malaga/config:load-config)
+  (malaga/models:sync-models))
 
 (defun sync-scryfall-data ()
   (malaga/db:with-mito-connection-and-conf (config (malaga/config:load-config))
