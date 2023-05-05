@@ -95,20 +95,3 @@
 
 (defun get-username-from-path (file)
   (car (last (pathname-directory file))))
-
-
-;; (malaga/db:with-mito-connection (malaga/config:load-config)
-;;   (mito:create-dao 'malaga/models:user :name "nmunro" :file "/tmp"))
-
-;; (malaga/db:with-mito-connection (malaga/config:load-config)
-;;   (mito:table-definition 'malaga/models:card))
-
-;; (malaga/db:with-mito-connection (malaga/config:load-config)
-;;   (mito:table-definition 'malaga/models:user))
-
-;; (malaga/db:with-mito-connection (malaga/config:load-config)
-;;   (mito:table-definition 'malaga/models:collection))
-
-;; (malaga/controllers:get-or-create malaga/controllers:+user+
-;;                                   :name "nmunro"
-;;                                   :file "/tmp")
