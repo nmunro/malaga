@@ -164,7 +164,7 @@
 (defmethod random ((controller collection) &key (exclude nil))
   (unless (typep exclude 'list)
     (error "Exclude must be a list"))
-  (malaga/db:with-mito-connection (conf (malaga/config:load-config))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
     (mito:retrieve-by-sql (sxql:select (:*)
                             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
                             (sxql:from (model controller))

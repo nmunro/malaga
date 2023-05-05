@@ -75,14 +75,15 @@
 
 ;;       (delete-stale-data))))
 
+
 (defun process-players (config)
-  (format t "Processing players~%")
+  (format t "Processing Players~%")
   (clean-up-old-data)
 
   (dolist (user-path (find-card-lists (malaga/config:dropbox-location config)))
-    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path) :checksum (malaga/utils:get-checksum user-path))))
+    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
       ; Compare checksum to user model
-      (format t ">>> Processing: ~A~%" (slot-value user 'malaga/models:id)))))
+      (format t ">>> Processing: ~A~%" (slot-value user 'mito.dao.mixin::id)))))
 
 (defun find-card-lists (dropbox-location)
   (loop :for dir :in (directory dropbox-location)
@@ -94,3 +95,20 @@
 
 (defun get-username-from-path (file)
   (car (last (pathname-directory file))))
+
+
+;; (malaga/db:with-mito-connection (malaga/config:load-config)
+;;   (mito:create-dao 'malaga/models:user :name "nmunro" :file "/tmp"))
+
+;; (malaga/db:with-mito-connection (malaga/config:load-config)
+;;   (mito:table-definition 'malaga/models:card))
+
+;; (malaga/db:with-mito-connection (malaga/config:load-config)
+;;   (mito:table-definition 'malaga/models:user))
+
+;; (malaga/db:with-mito-connection (malaga/config:load-config)
+;;   (mito:table-definition 'malaga/models:collection))
+
+;; (malaga/controllers:get-or-create malaga/controllers:+user+
+;;                                   :name "nmunro"
+;;                                   :file "/tmp")
