@@ -4,13 +4,6 @@
 
 (in-package malaga/player)
 
-
-;; (defun create-new-user (file)
-;;   (let ((name (get-username-from-path file)))
-;;     ;; (malaga/controllers:get-or-create )
-;;     (unless (mito:find-dao 'malaga/models:user :name name)
-;;         (mito:create-dao 'malaga/models:user :name name :file (namestring file) :checksum ""))))
-
 ;; (defun get-list-of-players-from-files (config)
 ;;   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists (malaga/config:dropbox-location config))))
 
@@ -19,9 +12,6 @@
 ;;         (file-players (get-list-of-players-from-files config)))
 ;;     (dolist (user-name (set-difference db-players file-players :test #'equal))
 ;;       (mito:delete-by-values 'malaga/models:user :name user-name))))
-
-;; (defun update-user-p (user)
-;;   (string/= (slot-value user 'malaga/models:checksum) (malaga/utils:get-checksum (slot-value user 'malaga/models:file))))
 
 ;; (defun delete-stale-data ()
 ;;   (mito:delete-by-values 'malaga/models:collection :updated "N"))
@@ -49,7 +39,6 @@
 ;;         (if collection
 ;;           (update-collection-record user csv collection index)
 ;;           (create-collection-record user csv card index))))))
-
 
 ;; (defun mark-records-as-stale ()
 ;;   (dolist (collection (mito:select-dao 'malaga/models:collection))
@@ -83,7 +72,8 @@
   (dolist (user-path (find-card-lists (malaga/config:dropbox-location config)))
     (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
       ; Compare checksum to user model
-      (format t ">>> Processing: ~A~%" (slot-value user 'mito.dao.mixin::id)))))
+      (when (update-user-p user)
+          (format t ">>> Processing: ~A~%" (slot-value user 'mito.dao.mixin::id))))))
 
 (defun find-card-lists (dropbox-location)
   (loop :for dir :in (directory dropbox-location)
@@ -95,3 +85,6 @@
 
 (defun get-username-from-path (file)
   (car (last (pathname-directory file))))
+
+(defun update-user-p (user)
+  (string/= (slot-value user 'malaga/models:checksum) (malaga/utils:get-checksum (slot-value user 'malaga/models:file))))
