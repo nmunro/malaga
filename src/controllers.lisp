@@ -1,14 +1,12 @@
 (defpackage malaga/controllers
   (:use :cl)
   (:shadow #:random
-           #:get)
+           #:get
+           #:search)
   (:export #:model
            #:get
            #:create
            #:get-or-create
-           #:get-players-by-card
-           #:get-cards-by-player
-           #:get-cards-by-search
            #:add-user-to-collections
            #:all
            #:many
@@ -17,6 +15,9 @@
            #:user
            #:collection
            #:card
+           #:cards
+           #:search
+           #:players
            #:+user+
            #:+collection+
            #:+card+))
@@ -153,54 +154,37 @@
 (defmethod random ((controller collection) &key (exclude nil))
   (unless (typep exclude 'list)
     (error "Exclude must be a list"))
+  (car (mito:retrieve-by-sql (sxql:select (:*)
+    (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+    (sxql:from (model controller))
+    (sxql:where (:not-in :name exclude))
+    (sxql:order-by (:random))
+    (sxql:limit 1)))))
+
+(defmethod search ((controller collection) search player)
+    (mito:select-dao 'malaga/models:collection
+        (mito:includes 'malaga/models:card)
+        (mito:includes 'malaga/models:user)
+        (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+
+        (if (string= player "")
+          (sxql:where (:like :name (format nil "%~A%" search)))
+          (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))))
+
+(defmethod players ((controller collection) card)
+  (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
+
+(defmethod cards ((controller collection) player)
   (malaga/db:with-mito-connection (malaga/config:load-config)
-    (mito:retrieve-by-sql (sxql:select (:*)
-                            (sxql:inner-join :card :on (:= :card.id :collection.card_id))
-                            (sxql:from (model controller))
-                            (sxql:order-by (:random))
-                            (sxql:limit 1)))))
-
-;; (sxql:select (:*)
-;;     (sxql:inner-join :card :on (:= :card.id :collection.card_id))
-;;     (sxql:from :collection)
-;;     (sxql:order-by (:random))
-;;     (sxql:limit 1))
-
-;; (slot-value (car (mito:select-dao (model controller)
-;;       (mito:includes 'malaga/models:card)
-;;       (sxql:inner-join :card :on (:= :card.id :collection.card_id))
-;;       (sxql:where (:not-in :name exclude))
-;;       (sxql:order-by (:random))
-;;       (sxql:limit 1)))
-;;     'malaga/models:card)
-
-;; (random +card+ :exclude 1)
-;; (random +collection+ :exclude '("Island" "Swamp" "Plains" "Mountain" "Forest"))
+    (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player)))))
 
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))
 (defvar +card+ (make-instance 'card))
 
-;; (defun get-players-by-card (card)
-;;   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
-
-;; (defun get-cards-by-player (player)
-;;   (malaga/db:with-mito-connection (malaga/config:load-config)
-;;     (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player)))))
-
-;; (defun get-cards-by-search (search player)
-;;   (malaga/db:with-mito-connection (malaga/config:load-config)
-;;     (add-user-to-collections (mito:select-dao 'malaga/models:collection
-;;         (mito:includes 'malaga/models:card)
-;;         (sxql:inner-join :card :on (:= :card.id :collection.card_id))
-
-;;         (if (string= player "")
-;;           (sxql:where (:like :name (format nil "%~A%" search)))
-;;           (sxql:where (:and (:= :user (get-player-by-name player)) (:like :name (format nil "%~A%" search)))))))))
-
-;; (defun add-user-to-collections (collections)
-;;   (malaga/db:with-mito-connection (malaga/config:load-config)
-;;     (loop :for collection :in collections
-;;           :collect `(:card ,(slot-value collection 'malaga/models:card)
-;;                      :quantity ,(slot-value collection 'malaga/models:quantity)
-;;                      :user ,(get-player-by-id (slot-value collection 'malaga/models:user-id))))))
+(defun add-user-to-collections (collections)
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (loop :for collection :in collections
+          :collect `(:card ,(slot-value collection 'malaga/models:card)
+                     :quantity ,(slot-value collection 'malaga/models:quantity)
+                     :user ,(slot-value collection 'malaga/models:user-id)))))

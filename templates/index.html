@@ -24,7 +24,9 @@
 <div class="row">
   <div class="col-12">
     <h1>Seen this card?</h1>
-    <h2><a href="{{ card.scryfall-uri }}" target="blank">{{ card.name }}</a></h2>
+    {% if card.image-normal %}
+      <a href="{{ card.scryfall-uri }}" target="blank"><img src="{{ card.image-normal }}"></img></a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

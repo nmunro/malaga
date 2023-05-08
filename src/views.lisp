@@ -17,34 +17,40 @@
 
 (defun index (params)
   (declare (ignore params))
-  (render "index.html"
-          :players (malaga/controllers:all malaga/controllers:+user+)
-          :card (malaga/controllers:random malaga/controllers:+card+)))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (render "index.html"
+        :players (malaga/controllers:all malaga/controllers:+user+)
+        :card (malaga/controllers:random malaga/controllers:+collection+ :exclude '("Island" "Plains" "Forest" "Mountains" "Swamp")))))
 
 (defun card (params)
-  (let ((card (malaga/controllers:one :id (cdr (assoc :card params :test #'string=)))))
-    (render "card.html" :card card :players (malaga/controllers:get-players-by-card card))))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (cdr (assoc :card params :test #'string=)))))
+      (render "card.html" :card card :players (malaga/controllers:players malaga/controllers:+collection+ card)))))
 
 (defun cards (params)
-  (let* ((search (or (cdr (assoc "search" params :test #'string=)) ""))
-         (user-name (or (cdr (assoc "player" params :test #'string=)) ""))
-         (cards (malaga/controllers:get-cards-by-search search user-name)))
-    (if (string= user-name "")
-      (render "cards.html" :cards cards)
-      (render "cards.html" :player `(:name ,user-name) :cards cards))))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (let* ((search (or (cdr (assoc "search" params :test #'string=)) ""))
+            (user-name (or (cdr (assoc "player" params :test #'string=)) ""))
+            (cards (malaga/controllers:search malaga/controllers:+collection+ search user-name)))
+        (if (string= user-name "")
+        (render "cards.html" :cards cards)
+        (render "cards.html" :player `(:name ,user-name) :cards cards)))))
 
 (defun players (params)
   (declare (ignore params))
-  (render "players.html" :players (malaga/controllers:all 'malaga/controllers:+user+)))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (render "players.html" :players (malaga/controllers:all malaga/controllers:+user+))))
 
 (defun player (params)
-  (render "player.html" :player (malaga/controllers:one :name (cdr (assoc :player params :test #'string=)))))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (render "player.html" :player (malaga/controllers:get malaga/controllers:+user+ :name (cdr (assoc :player params :test #'string=))))))
 
 (defun player-cards (params)
-  (let ((player (malaga/controllers:one :name (cdr (assoc :player params :test #'string=)))))
-    (render "cards.html"
-            :player player
-            :cards (malaga/controllers:get-cards-by-player player))))
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (let ((player (malaga/controllers:get malaga/controllers:+user+ :name (cdr (assoc :player params :test #'string=)))))
+      (render "cards.html"
+              :player player
+              :cards (malaga/controllers:cards malaga/controllers:+collection+ player)))))
 
 (defun Http404 (params)
   (setf (lack.response:response-status ningle:*response*) 404)
