@@ -56,8 +56,7 @@
 (mito:deftable collection ()
   ((user     :col-type user)
    (card     :col-type card)
-   (quantity :col-type (:integer))
-   (updated  :col-type (:varchar 1)))
+   (quantity :col-type (or (:integer) :null)))
   (:unique-keys (user card)))
 
 (defun sync-models ()

@@ -1,7 +1,9 @@
 (defpackage malaga/controllers
   (:use :cl)
-  (:shadow #:random)
+  (:shadow #:random
+           #:get)
   (:export #:model
+           #:get
            #:create
            #:get-or-create
            #:get-players-by-card
@@ -86,6 +88,7 @@
 (defun format-value (value)
   (typecase value
     (string (format nil "'~A'" value))
+    (pathname (format nil "'~A'" (namestring value)))
     (t value)))
 
 (defun format-column (col)
@@ -103,7 +106,7 @@
 (defgeneric all (controller)
   (:documentation "Returns all records"))
 
-(defgeneric one (controller conditions)
+(defgeneric get (controller &rest kws &key &allow-other-keys)
   (:documentation "Returns a single record matching the specified conditions, raises a multiple-items error if more than one match, raises a not-found error if no matches"))
 
 (defgeneric many (controller conditions)
@@ -119,37 +122,23 @@
   (:documentation "Gets an object or creates it if missing"))
 
 (defmethod all ((controller controller))
-  (malaga/db:with-mito-connection (conf (malaga/config:load-config))
-    (mito:retrieve-by-sql (sxql:select (:*) (sxql:from (model controller))))))
+  (mito:retrieve-by-sql (sxql:select (:*) (sxql:from (model controller)))))
 
-(defmethod one ((controller controller) conditions)
-  (malaga/db:with-mito-connection (conf (malaga/config:load-config))
-    (let* ((query (format nil "SELECT * FROM ~A WHERE ~{~A~^ AND ~}" (model controller) (build-clauses conditions)))
-           (results (mito:retrieve-by-sql query)))
-      (cond
-        ((= 0 (length results))
-         (error 'not-found :message "No item found"))
+(defmethod get ((controller controller) &rest kws &key &allow-other-keys)
+  (apply #'mito:find-dao (cons (model controller) kws)))
 
-        ((= 1 (length results))
-         (car results))
-
-        (t
-         (error 'multiple-items :message "Multiple items returned"))))))
-
+; rename this to filter
 (defmethod many ((controller controller) conditions)
-  (malaga/db:with-mito-connection (malaga/config:load-config)
     (let* ((query (format nil "SELECT * FROM ~A WHERE ~{~A~^ AND ~}" (model controller) (build-clauses conditions))))
-      (mito:retrieve-by-sql query))))
+      (mito:retrieve-by-sql query)))
 
 (defmethod create ((controller controller) &rest kws &key &allow-other-keys)
-  (malaga/db:with-mito-connection (malaga/config:load-config)
-    (apply #'mito:create-dao (cons (model controller) kws))))
+  (apply #'mito:create-dao (cons (model controller) kws)))
 
 (defmethod get-or-create ((controller controller) &rest kws &key &allow-other-keys)
-  (malaga/db:with-mito-connection (malaga/config:load-config)
-    (alexandria:if-let (obj (apply #'mito:find-dao (cons (model controller) kws)))
-      (values obj nil)
-      (values (apply #'create (cons controller kws)) t))))
+  (alexandria:if-let (obj (apply #'mito:find-dao (cons (model controller) kws)))
+      (return-from get-or-create (values obj nil))
+      (return-from get-or-create (values (apply #'create (cons controller kws)) t))))
 
 (defclass user (controller)
   ((model :initform 'malaga/models:user :reader model)))
@@ -196,11 +185,11 @@
 ;;   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
 
 ;; (defun get-cards-by-player (player)
-;;   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
+;;   (malaga/db:with-mito-connection (malaga/config:load-config)
 ;;     (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player)))))
 
 ;; (defun get-cards-by-search (search player)
-;;   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
+;;   (malaga/db:with-mito-connection (malaga/config:load-config)
 ;;     (add-user-to-collections (mito:select-dao 'malaga/models:collection
 ;;         (mito:includes 'malaga/models:card)
 ;;         (sxql:inner-join :card :on (:= :card.id :collection.card_id))
@@ -210,7 +199,7 @@
 ;;           (sxql:where (:and (:= :user (get-player-by-name player)) (:like :name (format nil "%~A%" search)))))))))
 
 ;; (defun add-user-to-collections (collections)
-;;   (malaga/db:with-mito-connection (conf (malaga/config:load-config))
+;;   (malaga/db:with-mito-connection (malaga/config:load-config)
 ;;     (loop :for collection :in collections
 ;;           :collect `(:card ,(slot-value collection 'malaga/models:card)
 ;;                      :quantity ,(slot-value collection 'malaga/models:quantity)
