@@ -18,7 +18,6 @@
            #:delete
            #:search
            #:players
-           #:updated-before
            #:stale-users
            #:+user+
            #:+collection+
@@ -66,9 +65,6 @@
   (alexandria:if-let (obj (apply #'mito:find-dao (cons (model controller) kws)))
       (return-from get-or-create (values obj nil))
       (return-from get-or-create (values (apply #'create (cons controller kws)) t))))
-
-(defmethod updated-before ((controller controller) date)
-  (mito:select-dao (model controller) (sxql:where (:< :updated_at date))))
 
 (defclass user (controller)
   ((model :initform 'malaga/models:user :reader model)))
