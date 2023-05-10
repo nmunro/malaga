@@ -9,6 +9,7 @@
            #:lang
            #:file
            #:checksum
+           #:profile
            #:collection
            #:quantity
            #:scryfall-uri
@@ -50,6 +51,7 @@
 (mito:deftable user ()
   ((name     :col-type (:varchar 255))
    (file     :col-type (:varchar 2048))
+   (profile  :col-type (or (:text) :null))
    (checksum :col-type (or (:varchar 256) :null)))
   (:unique-keys name file))
 
