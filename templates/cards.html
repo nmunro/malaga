@@ -18,14 +18,14 @@
     </tr>
   </thead>
   <tbody>
-    {% for collection in cards %}
+    {% for result in results %}
         <tr>
           <th scope="col">{{ forloop.counter }}</th>
-          <td><a href="/cards/{{ collection.card.id }}">{{ collection.card.name }}</a></td>
+          <td><a href="/cards/{{ result.card.id }}">{{ result.card.name }}</a></td>
           {% if not player %}
-            <td><a href="/players/{{ collection.user.name }}">{{ collection.user.name }}</a></td>
+            <td><a href="/players/{{ result.user.name }}">{{ result.user.name }}</a></td>
           {% endif %}
-          <td>{{ collection.quantity }}</td>
+          <td>{{ result.quantity }}</td>
         </tr>
     {% endfor %}
   </tbody>

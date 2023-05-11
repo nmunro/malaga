@@ -90,15 +90,19 @@
     (sxql:order-by (:random))
     (sxql:limit 1))))
 
-(defmethod search ((controller collection) search player)
-    (mito:select-dao 'malaga/models:collection
-        (mito:includes 'malaga/models:card)
-        (mito:includes 'malaga/models:user)
-        (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+(defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 100))
+    (values (mito:count-dao (model controller)) (parse-integer offset) (parse-integer limit)
+        (mito:select-dao 'malaga/models:collection
+            (mito:includes 'malaga/models:card)
+            (mito:includes 'malaga/models:user)
+            (sxql:inner-join :card :on (:= :card.id :collection.card_id))
 
-        (if (string= player "")
-          (sxql:where (:like :name (format nil "%~A%" search)))
-          (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))))
+            (if (string= player "")
+                (sxql:where (:like :name (format nil "%~A%" search)))
+                (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))
+
+            (when paginate
+                (sxql:limit (parse-integer offset) (parse-integer limit))))))
 
 (defmethod players ((controller collection) card)
   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
