@@ -90,7 +90,7 @@
     (sxql:order-by (:random))
     (sxql:limit 1))))
 
-(defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 100))
+(defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))
     (values (mito:count-dao (model controller)) (parse-integer offset) (parse-integer limit)
         (mito:select-dao 'malaga/models:collection
             (mito:includes 'malaga/models:card)

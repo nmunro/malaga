@@ -6,6 +6,19 @@
   </div>
 </div>
 
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% for p in pages %}
+        {% if forloop.first %}
+          <li class="page-item{% ifequal page forloop.counter0 %} active{% endifequal %}"><a class="page-link" href="/cards">{{ forloop.counter }}</a></li>
+        {% else %}
+          <li class="page-item{% ifequal page forloop.counter0 %} active{% endifequal %}"><a class="page-link" href="/cards?offset={{ p }}">{{ forloop.counter }}</a></li>
+        {% endif %}
+    {% endfor %}
+
+  </ul>
+</nav>
+
 <table class="table">
   <thead>
     <tr>
@@ -30,4 +43,17 @@
     {% endfor %}
   </tbody>
 </table>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% for p in pages %}
+        {% if forloop.first %}
+          <li class="page-item{% ifequal page forloop.counter0 %} active{% endifequal %}"><a class="page-link" href="/cards">{{ forloop.counter }}</a></li>
+        {% else %}
+          <li class="page-item{% ifequal page forloop.counter0 %} active{% endifequal %}"><a class="page-link" href="/cards?offset={{ p }}">{{ forloop.counter }}</a></li>
+        {% endif %}
+    {% endfor %}
+
+  </ul>
+</nav>
 {% endblock %}
