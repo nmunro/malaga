@@ -107,8 +107,8 @@
             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
 
             (if player
-                (sxql:where (:like :name (format nil "%~A%" search)))
-                (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))
+                (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search))))
+                (sxql:where (:like :name (format nil "%~A%" search))))
 
             (when paginate
                 (sxql:limit (parse-integer offset) (parse-integer limit))))))
