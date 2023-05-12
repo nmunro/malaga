@@ -52,7 +52,7 @@
 
 (defun find-profiles (dropbox-location)
   (loop :for dir :in (directory dropbox-location)
-        :for path = (probe-file (pathname (format nil "~A/profile.md" dir)))
+        :for path = (probe-file (pathname (format nil "~A/profile.html" dir)))
         :if path :collect path))
 
 (defun clean-up-old-data (dropbox-location)
