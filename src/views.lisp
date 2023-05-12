@@ -56,7 +56,6 @@
           (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500"))
           (search (or (cdr (assoc "search" params :test #'string=)) "")))
-      (format t "Player-Cards: ~A -> ~A~%" user (type-of user))
         (multiple-value-bind (count offset limit results)
             (malaga/controllers:search malaga/controllers:+collection+ search user :paginate t :offset offset :limit limit)
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
