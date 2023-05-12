@@ -9,6 +9,7 @@
            #:create
            #:get
            #:get-or-create
+           #:get-object-or-default
            #:all
            #:random
            #:user
@@ -66,6 +67,13 @@
       (return-from get-or-create (values obj nil))
       (return-from get-or-create (values (apply #'create (cons controller kws)) t))))
 
+(defmethod get-object-or-default ((controller controller) &rest kws &key (default nil) &allow-other-keys)
+  (let ((default (getf kws :default)))
+    (remf kws :default)
+    (handler-case
+        (apply #'malaga/controllers:get (cons controller kws))
+      (error () default))))
+
 (defclass user (controller)
   ((model :initform 'malaga/models:user :reader model)))
 
@@ -91,13 +99,14 @@
     (sxql:limit 1))))
 
 (defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))
+  (format t "Search Player: ~A -> ~A~%" player (type-of player))
     (values (mito:count-dao (model controller)) (parse-integer offset) (parse-integer limit)
         (mito:select-dao 'malaga/models:collection
             (mito:includes 'malaga/models:card)
             (mito:includes 'malaga/models:user)
             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
 
-            (if (string= player "")
+            (if player
                 (sxql:where (:like :name (format nil "%~A%" search)))
                 (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))
 
@@ -114,3 +123,7 @@
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))
 (defvar +card+ (make-instance 'card))
+
+(let ((plist '(:a 1 :b 2 :c 3)))
+  (remf plist :b)
+  plist)

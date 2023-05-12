@@ -30,16 +30,16 @@
 (defun cards (params)
   (malaga/db:with-mito-connection (malaga/config:load-config)
     (let* ((search (or (cdr (assoc "search" params :test #'string=)) ""))
-           (user-name (or (cdr (assoc "player" params :test #'string=)) ""))
+           (user (malaga/controllers:get-object-or-default malaga/controllers:+user+ :name (cdr (assoc :player params :test #'string=))))
            (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
            (limit (or (cdr (assoc "limit" params :test #'string=)) "500")))
       (multiple-value-bind (count offset limit results)
-            (malaga/controllers:search malaga/controllers:+collection+ search user-name :paginate t :offset offset :limit limit)
+            (malaga/controllers:search malaga/controllers:+collection+ search user :paginate t :offset offset :limit limit)
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
-            (if (string= user-name "")
-                (render "cards.html" :page page :pages pages :count count :offset offset :limit limit :results results)
-                (render "cards.html" :player `(:name ,user-name) :page page :pages pages :count count :offset offset :limit limit :results results)))))))
+            (if user
+                (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results)
+                (render "cards.html" :page page :pages pages :count count :offset offset :limit limit :results results)))))))
 
 (defun players (params)
   (declare (ignore params))
@@ -52,10 +52,16 @@
 
 (defun player-cards (params)
   (malaga/db:with-mito-connection (malaga/config:load-config)
-    (let ((player (malaga/controllers:get malaga/controllers:+user+ :name (cdr (assoc :player params :test #'string=)))))
-      (render "cards.html"
-              :player player
-              :cards (malaga/controllers:cards malaga/controllers:+collection+ player)))))
+    (let ((user (malaga/controllers:get-object-or-default malaga/controllers:+user+ :name (cdr (assoc :player params :test #'string=))))
+          (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
+          (limit (or (cdr (assoc "limit" params :test #'string=)) "500"))
+          (search (or (cdr (assoc "search" params :test #'string=)) "")))
+      (format t "Player-Cards: ~A -> ~A~%" user (type-of user))
+        (multiple-value-bind (count offset limit results)
+            (malaga/controllers:search malaga/controllers:+collection+ search user :paginate t :offset offset :limit limit)
+        (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
+               (page (or (position offset pages :test #'<=) (1- (length pages)))))
+            (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results))))))
 
 (defun Http404 (params)
   (setf (lack.response:response-status ningle:*response*) 404)
