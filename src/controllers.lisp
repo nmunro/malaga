@@ -99,7 +99,6 @@
     (sxql:limit 1))))
 
 (defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))
-  (format t "Search Player: ~A -> ~A~%" player (type-of player))
     (values (mito:count-dao (model controller)) (parse-integer offset) (parse-integer limit)
         (mito:select-dao 'malaga/models:collection
             (mito:includes 'malaga/models:card)
