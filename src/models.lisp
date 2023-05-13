@@ -14,6 +14,7 @@
            #:quantity
            #:scryfall-uri
            #:uri
+           #:extras
            #:price-usd
            #:price-usd-foil
            #:price-usd-etched
@@ -58,8 +59,9 @@
 (mito:deftable collection ()
   ((user     :col-type user)
    (card     :col-type card)
+   (extras   :col-type (or (:varchar 1024) :null))
    (quantity :col-type (or (:integer) :null)))
-  (:unique-keys (user card)))
+  (:unique-keys (user card extras)))
 
 (defun sync-models ()
   (mito:ensure-table-exists 'card)

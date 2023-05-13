@@ -6,10 +6,6 @@
 (in-package malaga/web)
 
 (defvar +app+ (make-instance 'ningle:<app>))
-(defvar +instance+ nil)
-
-;; Tell Djula to load the templates from the templates directory
-(djula:add-template-directory (asdf:system-relative-pathname "malaga" "templates/"))
 
 (malaga/web/routes:defroute +app+ "/" #'malaga/views:index)
 (malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards)
@@ -20,7 +16,8 @@
 (malaga/web/routes:defroute +app+ "/:missing" #'malaga/views:http404)
 
 (defun start-app ()
-  (setf +instance+ (clack:clackup +app+)))
+  (djula:add-template-directory (asdf:system-relative-pathname "malaga" "templates/"))
+  (clack:clackup +app+))
 
-(defun stop-app ()
-  (clack:stop +instance+))
+(defun stop-app (instance)
+  (clack:stop instance))

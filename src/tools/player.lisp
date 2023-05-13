@@ -30,20 +30,22 @@
   (let* ((path (pathname (slot-value user 'malaga/models:file)))
          (headers (cl-csv:read-csv-row path))
          (csv (make-instance 'data-table:data-table :column-names headers :rows (cdr (cl-csv:read-csv path)))))
-    (dotimes (index (1- (length (data-table:rows csv))))
-      (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (data-table:data-table-value csv :row-idx index :col-name "scryfall_id"))))
-        (create-record user card (parse-integer (data-table:data-table-value csv :row-idx index :col-name "quantity"))))))
+    (dotimes (row (1- (length (data-table:rows csv))))
+      (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (data-table:data-table-value csv :row-idx row :col-name "scryfall_id"))))
+        (create-record
+         user
+         card
+         (parse-integer (data-table:data-table-value csv :row-idx row :col-name "quantity"))
+         (data-table:data-table-value csv :row-idx row :col-name "extras")))))
 
   (setf (slot-value user 'malaga/models:checksum) (malaga/utils:get-checksum (pathname (slot-value user 'malaga/models:file))))
   (mito:save-dao user))
 
-(defun create-record (user card quantity)
+(defun create-record (user card quantity extras)
   (multiple-value-bind (obj created)
-      (malaga/controllers:get-or-create malaga/controllers:+collection+ :user user :card card)
-    (if created ; things like 'foils' count as separate cards, so just add them to normal cards
+      (malaga/controllers:get-or-create malaga/controllers:+collection+ :user user :card card :extras extras)
       (setf (slot-value obj 'malaga/models:quantity) quantity)
-      (setf (slot-value obj 'malaga/models:quantity) (+ quantity (slot-value obj 'malaga/models:quantity))))
-    (mito:save-dao obj)))
+      (mito:save-dao obj)))
 
 (defun find-card-lists (dropbox-location)
   (loop :for dir :in (directory dropbox-location)

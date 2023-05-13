@@ -24,6 +24,7 @@
     <tr>
       <th scope="col">#</th>
       <th scope="col">Name</th>
+      <th scope="col">Extras</th>
       {% if not player %}
         <th scope="col">Player</th>
       {% endif %}
@@ -35,6 +36,7 @@
         <tr>
           <th scope="col">{{ forloop.counter }}</th>
           <td><a href="/cards/{{ result.card.id }}">{{ result.card.name }}</a></td>
+          <td>{{ result.extras }}</td>
           {% if not player %}
             <td><a href="/players/{{ result.user.name }}">{{ result.user.name }}</a></td>
           {% endif %}
