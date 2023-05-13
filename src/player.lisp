@@ -8,17 +8,17 @@
   (format t "Processing Players~%")
   (clean-up-old-data dropbox-location)
 
-  ; Add profiles
-  (dolist (profile (find-profiles dropbox-location))
-    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path profile))))
-      (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
-      (mito:save-dao user)))
-
   ; Add cards
   (dolist (user-path (find-card-lists dropbox-location))
     (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
       (when (update-user-p user)
-          (update-user user)))))
+          (update-user user))))
+
+  ; Add profiles
+  (dolist (profile (find-profiles dropbox-location))
+    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path profile))))
+      (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
+      (mito:save-dao user))))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
