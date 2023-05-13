@@ -1,6 +1,9 @@
 {% extends "layouts/default.html" %}
 {% block content %}
 <h1><a href="{{ card.scryfall-uri }}">{{ card.name }}</a></h1>
+
+<a href="{{ card.scryfall-uri }}" target="blank"><img src="{{ card.image-normal }}"></img></a>
+
 {% if players %}
     <p>
     Players who own this:
