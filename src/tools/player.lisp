@@ -5,20 +5,22 @@
 (in-package malaga/tools/player)
 
 (defun process-players (dropbox-location)
-  (format t "Processing Players~%")
-  (clean-up-old-data dropbox-location)
+  (let ((now (local-time:now)))
+    (format t "Processing Players~%")
 
-  ; Add cards
-  (dolist (user-path (find-card-lists dropbox-location))
-    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
-      (when (update-user-p user)
-          (update-user user))))
+    ; Add cards
+    (dolist (user-path (find-card-lists dropbox-location))
+      (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
+        (when (update-user-p user)
+            (update-user user))))
 
-  ; Add profiles
-  (dolist (profile (find-profiles dropbox-location))
-    (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path profile))))
-      (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
-      (mito:save-dao user))))
+    ; Add profiles
+    (dolist (profile (find-profiles dropbox-location))
+      (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path profile))))
+        (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
+        (mito:save-dao user)))
+
+    (clean-up-old-data dropbox-location)))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
@@ -30,7 +32,7 @@
   (let* ((path (pathname (slot-value user 'malaga/models:file)))
          (headers (cl-csv:read-csv-row path))
          (csv (make-instance 'data-table:data-table :column-names headers :rows (cdr (cl-csv:read-csv path)))))
-    (dotimes (row (1- (length (data-table:rows csv))))
+    (dotimes (row (length (data-table:rows csv)))
       (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (data-table:data-table-value csv :row-idx row :col-name "scryfall_id"))))
         (create-record
          user
@@ -44,8 +46,8 @@
 (defun create-record (user card quantity extras)
   (multiple-value-bind (obj created)
       (malaga/controllers:get-or-create malaga/controllers:+collection+ :user user :card card :extras extras)
-      (setf (slot-value obj 'malaga/models:quantity) quantity)
-      (mito:save-dao obj)))
+    (setf (slot-value obj 'malaga/models:quantity) quantity)
+    (mito:save-dao obj)))
 
 (defun find-card-lists (dropbox-location)
   (loop :for dir :in (directory dropbox-location)
