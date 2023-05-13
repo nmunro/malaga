@@ -1,8 +1,8 @@
-(defpackage malaga/scryfall
+(defpackage malaga/tools/scryfall
   (:use :cl)
   (:export #:sync-data))
 
-(in-package malaga/scryfall)
+(in-package malaga/tools/scryfall)
 
 (defun ingest-data (config)
   (with-open-file (in (malaga/config:all-card-data config) :direction :input :if-does-not-exist nil)

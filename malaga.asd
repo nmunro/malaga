@@ -23,9 +23,11 @@
                  (:file "db")
                  (:file "controllers")
                  (:file "views")
-                 (:file "player")
-                 (:file "scryfall")
-                 (:file "main")
+                 (:module "tools"
+                  :components
+                  ((:file "player")
+                   (:file "scryfall")
+                   (:file "main")))
                  (:file "app"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))

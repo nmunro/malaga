@@ -1,8 +1,8 @@
-(defpackage malaga/player
+(defpackage malaga/tools/player
   (:use :cl)
   (:export #:process-players))
 
-(in-package malaga/player)
+(in-package malaga/tools/player)
 
 (defun process-players (dropbox-location)
   (format t "Processing Players~%")
