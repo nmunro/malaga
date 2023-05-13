@@ -99,8 +99,7 @@
     (sxql:limit 1))))
 
 (defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))
-    (values (mito:count-dao (model controller)) (parse-integer offset) (parse-integer limit)
-        (mito:select-dao 'malaga/models:collection
+  (let ((query (mito:select-dao (model controller)
             (mito:includes 'malaga/models:card)
             (mito:includes 'malaga/models:user)
             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
@@ -111,6 +110,13 @@
 
             (when paginate
                 (sxql:limit (parse-integer offset) (parse-integer limit))))))
+    (values
+     (if (string= search "")
+         (mito:count-dao (model controller))
+         (length query))
+     (parse-integer offset)
+     (parse-integer limit)
+     query)))
 
 (defmethod players ((controller collection) card)
   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
@@ -122,7 +128,3 @@
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))
 (defvar +card+ (make-instance 'card))
-
-(let ((plist '(:a 1 :b 2 :c 3)))
-  (remf plist :b)
-  plist)
