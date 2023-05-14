@@ -20,7 +20,7 @@
   (malaga/db:with-mito-connection (malaga/config:load-config)
     (render "index.html"
         :players (malaga/controllers:all malaga/controllers:+user+)
-        :collection (malaga/controllers:random malaga/controllers:+collection+ :exclude '("Island" "Plains" "Forest" "Mountains" "Swamp")))))
+        :collection (malaga/controllers:random malaga/controllers:+collection+ :exclude '("Island" "Plains" "Forest" "Mountain" "Swamp")))))
 
 (defun card (params)
   (malaga/db:with-mito-connection (malaga/config:load-config)

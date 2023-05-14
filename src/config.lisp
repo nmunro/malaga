@@ -1,6 +1,7 @@
 (defpackage malaga/config
   (:use :cl)
   (:export #:load-config
+           #:with-config
            #:dropbox-location
            #:config
            #:config-data
@@ -35,3 +36,7 @@
 
 (defmethod get-url ((config config) url)
   (cdr (assoc url (urls config))))
+
+(defmacro with-config (config &body body)
+  `(let ((,config ,(load-config)))
+    (unwind-protect (progn ,@body))))
