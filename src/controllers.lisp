@@ -13,6 +13,7 @@
            #:all
            #:random
            #:user
+           #:delete-before
            #:collection
            #:card
            #:cards
@@ -40,9 +41,6 @@
 
 (defgeneric create (controller &rest kws &key &allow-other-keys)
   (:documentation "Creates an object"))
-
-(defgeneric updated-before (controller date)
-  (:documentation "Selects all objects updated before a certain date time"))
 
 (defgeneric get-or-create (controller &rest kws &key &allow-other-keys)
   (:documentation "Gets an object or creates it if missing"))
@@ -122,8 +120,11 @@
   (loop :for player :in (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/models:user)))
 
 (defmethod cards ((controller collection) player)
-  (malaga/db:with-mito-connection (malaga/config:load-config)
-    (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player)))))
+  (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player))))
+
+(defmethod delete-before ((controller controller) updated)
+  (dolist (collection (mito:select-dao (model controller) (sxql:where (:> :updated_at updated))))
+    (mito:delete-dao collection)))
 
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))

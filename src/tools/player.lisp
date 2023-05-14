@@ -4,8 +4,16 @@
 
 (in-package malaga/tools/player)
 
+(defun get-start-time () ; @NOTE: might need to check if this is not UTC and adjust it, if it is
+  (multiple-value-bind (second minute hour date month year day daylight-p zone)
+      (get-decoded-time)
+    (declare (ignore day))
+    (if daylight-p
+        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (1+ zone))
+        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (+ zone)))))
+
 (defun process-players (dropbox-location)
-  (let ((now (local-time:now)))
+  (let ((now (get-start-time)))
     (format t "Processing Players~%")
 
     ; Add cards
@@ -20,7 +28,7 @@
         (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
         (mito:save-dao user)))
 
-    (clean-up-old-data dropbox-location)))
+    (clean-up-old-data dropbox-location now)))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
@@ -59,7 +67,9 @@
         :for path = (probe-file (pathname (format nil "~A/profile.html" dir)))
         :if path :collect path))
 
-(defun clean-up-old-data (dropbox-location)
+(defun clean-up-old-data (dropbox-location now)
+  (malaga/controllers:delete-before malaga/controllers:+collection+ now)
+
   (dolist (user (malaga/controllers:stale-users malaga/controllers:+user+ (get-list-of-players-from-files dropbox-location)))
     (malaga/controllers:delete malaga/controllers:+collection+ :user user)
     (malaga/controllers:delete malaga/controllers:+user+ :name (slot-value user 'malaga/models:name))))
