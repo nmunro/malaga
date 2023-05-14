@@ -1,7 +1,6 @@
 (defpackage malaga/db
   (:use :cl)
-  (:export #:with-mito-connection
-           #:with-mito-connection-and-conf))
+  (:export #:with-mito-connection))
 
 (in-package malaga/db)
 
