@@ -70,10 +70,3 @@
   (declare (ignore params))
   (setf (lack.response:response-status ningle:*response*) 500)
   (format nil "Internal Server Error"))
-
-;; (let ((all 5384)
-;;       (offset 5000)
-;;       (limit 500))
-;;   (let ((pages (loop :for x :from 1 :to (floor (/ all limit)) :collect (* x limit))))
-;;     (format t "test: ~A~%" pages)
-;;     (or (position offset pages :test #'<) (1- (length pages)))))
