@@ -1,12 +1,14 @@
 (defpackage malaga/tools
   (:use :cl)
-  (:export #:sync-player-data
+  (:export #:migrate
+           #:sync-player-data
            #:sync-scryfall-data))
 
 (in-package malaga/tools)
 
-(malaga/db:with-mito-connection (malaga/config:load-config)
-  (malaga/models:sync-models))
+(defun migrate ()
+  (malaga/db:with-mito-connection (malaga/config:load-config)
+    (malaga/models:sync-models)))
 
 (defun sync-scryfall-data ()
   (malaga/db:with-mito-connection-and-conf (config (malaga/config:load-config))
