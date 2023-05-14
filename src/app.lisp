@@ -16,7 +16,7 @@
 (malaga/web/routes:defroute +app+ "/:missing" #'malaga/views:http404)
 
 (defun start-app ()
-  (djula:add-template-directory (asdf:system-relative-pathname "malaga" "templates/"))
+  (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
   (clack:clackup +app+))
 
 (defun stop-app (instance)
