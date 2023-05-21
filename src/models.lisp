@@ -28,9 +28,9 @@
 (in-package malaga/models)
 
 (mito:deftable card ()
-  ((id                :col-type (:varchar 36) :primary-key t)
-   (name              :col-type (:varchar 2048))
+  ((name              :col-type (:varchar 2048))
    (lang              :col-type (:varchar 32))
+   (scryfall-id       :col-type (:varchar 36))
    (scryfall-uri      :col-type (:varchar 255))
    (uri               :col-type (:varchar 255))
    (rarity            :col-type (:varchar 16))
@@ -47,7 +47,7 @@
    (image-normal      :col-type (:varchar 2048))
    (image-small       :col-type (:varchar 2048))
    (set               :col-type (:varchar 16)))
-  (:unique-keys id scryfall-uri uri))
+  (:unique-keys scryfall-id scryfall-uri uri))
 
 (mito:deftable user ()
   ((name     :col-type (:varchar 255))

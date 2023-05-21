@@ -41,7 +41,7 @@
          (headers (cl-csv:read-csv-row path))
          (csv (make-instance 'data-table:data-table :column-names headers :rows (cdr (cl-csv:read-csv path)))))
     (dotimes (row (length (data-table:rows csv)))
-      (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (data-table:data-table-value csv :row-idx row :col-name "scryfall_id"))))
+      (let ((card (malaga/controllers:get malaga/controllers:+card+ :scryfall-id (data-table:data-table-value csv :row-idx row :col-name "scryfall_id"))))
         (create-record
          user
          card
