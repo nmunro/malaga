@@ -4,14 +4,14 @@
 
 (in-package malaga/tools/scryfall)
 
-(defun ingest-data (config)
-  (with-open-file (in (malaga/config:all-card-data config) :direction :input :if-does-not-exist nil)
+(defun ingest-data ()
+  (with-open-file (in (uiop:getenv "MALAGA_CARD_DATA") :direction :input :if-does-not-exist nil)
     (let ((item-count (loop :for line = (read-line in nil nil) :for count :from 0 :unless line :return count)))
       ; Reset file pointer to 0
       (file-position in 0)
-      (loop :for l = (read-line in nil nil) :for c :from 1 :while l :do (process-scryfall-object l c item-count config)))))
+      (loop :for l = (read-line in nil nil) :for c :from 1 :while l :do (process-scryfall-object l c item-count)))))
 
-(defun process-scryfall-object (object count total-count config)
+(defun process-scryfall-object (object count total-count)
   (when (str:starts-with-p "{" (str:trim object))
     (format t ">>> ~,2f%" (* 100 (/ count total-count)))
     (finish-output)
@@ -41,16 +41,15 @@
         :image-small (or (cdr (assoc :small (cdr (assoc :image--uris card)))) "")
         :set (cdr (assoc :set card))))))
 
-(defun get-latest-bulk-data (config)
-  (with-input-from-string (json-stream (malaga/utils:get-data (malaga/config:get-url config :bulk-data)))
+(defun get-latest-bulk-data ()
+  (with-input-from-string (json-stream (malaga/utils:get-data (uiop:getenv "MALAGA_BULK_DATA")))
     (loop :for data :in (cdr (assoc :data (json:decode-json json-stream)))
           :collect `(:type ,(cdr (assoc :type data)) :uri ,(cdr (assoc :download--uri data))))))
 
-(defun sync-data (config)
-  (let ((path (merge-pathnames (malaga/config:config-data config) (malaga/config:config config))))
-    (malaga/utils:download-files (get-latest-bulk-data config) path))
+(defun sync-data ()
+  (malaga/utils:download-files (get-latest-bulk-data) (uiop:getenv "MALAGA_CARD_DATA"))
   (format t ">>> Data Sync'd!~%")
   (format t ">>> Started: ~A~%" (local-time:now))
-  (ingest-data config)
+  (ingest-data)
   (format t ">>> 100.000%~%")
   (format t ">>> Stopped: ~A~%" (local-time:now)))

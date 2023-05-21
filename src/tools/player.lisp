@@ -4,7 +4,7 @@
 
 (in-package malaga/tools/player)
 
-(defun get-start-time () ; @NOTE: might need to check if this is not UTC and adjust it, if it is
+(defun get-start-time ()
   (multiple-value-bind (second minute hour date month year day daylight-p zone)
       (get-decoded-time)
     (declare (ignore day))

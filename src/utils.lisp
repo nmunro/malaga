@@ -29,24 +29,24 @@
         (file (local-time:unix-to-timestamp (osicat-posix:stat-ctime (osicat-posix:stat file)))))
     (local-time:timestamp< file yesterday)))
 
-(defun download-files (files dir &key (log t))
-  (dolist (file files)
-    (download-file file dir :log log)))
+(defun download-files (urls dir &key (log t))
+  (dolist (url urls)
+    (download-file url dir :log log)))
 
-(defun download-file (file dir &key (log t))
+(defun download-file (url dir &key (log t))
   (let ((cache-dir dir))
     (ensure-directories-exist cache-dir)
 
-    (let ((cache-file (merge-pathnames (pathname (format nil "~A.json" (getf file :type))) cache-dir)))
+    (let ((cache-file (merge-pathnames (pathname (format nil "~A.json" (getf url :type))) cache-dir)))
       (unless (file-refresh-p cache-file)
         (when log
           (format t ">>> File ~A is up to date!~%" cache-file))
         (return-from download-file nil))
 
       (when log
-        (format t ">>> Downloading ~A~%" (getf file :type)))
+        (format t ">>> Downloading ~A~%" (getf url :type)))
 
-      (serapeum:write-stream-into-file (dex:get (getf file :uri) :want-stream t) cache-file :if-exists :supersede))))
+      (serapeum:write-stream-into-file (dex:get (getf url :uri) :want-stream t) cache-file :if-exists :supersede))))
 
 (defun get-checksum (path)
   (let ((digest (ironclad:make-digest :md5)))

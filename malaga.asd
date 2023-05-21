@@ -17,8 +17,7 @@
                :djula)
   :components ((:module "src"
                 :components
-                ((:file "config")
-                 (:file "utils")
+                ((:file "utils")
                  (:file "models")
                  (:file "db")
                  (:file "controllers")
