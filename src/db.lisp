@@ -16,7 +16,7 @@
           ,output))
 
       ((string= "mysql" (uiop:getenv "MALAGA_DB_TYPE"))
-       `(let ((mito:*connection* (dbi:connect :mysql :database-name (uiop:getenv "MALAGA_DB") :username "MALAGA_MYSQL_USERNAME" :password (uiop:getenv "MALAGA_MYSQL_PASSWORD" :port 3306)))
+       `(let ((mito:*connection* (dbi:connect :mysql :database-name (uiop:getenv "MALAGA_DB") :username (uiop:getenv "MALAGA_MYSQL_USERNAME") :password (uiop:getenv "MALAGA_MYSQL_PASSWORD") :port 3306))
               (,output nil))
           (setf ,output (unwind-protect (progn ,@body)))
           (dbi:disconnect mito:*connection*)
