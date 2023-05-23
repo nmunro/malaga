@@ -84,7 +84,6 @@
 (defmethod stale-users ((controller user) users)
   (mito:select-dao (model controller) (sxql:where (:not-in :name users))))
 
-;; Add this as a method to the card controller, rename it to get-random
 (defmethod random ((controller collection) &key (exclude nil))
   (unless (typep exclude 'list)
     (error "Exclude must be a list"))
