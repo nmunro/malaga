@@ -28,7 +28,9 @@
         (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
         (mito:save-dao user)))
 
-    (clean-up-old-data dropbox-location now)))
+    ;@TODO: Find a mysql way to clean out old data
+    ;(clean-up-old-data dropbox-location now)))
+    ))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))

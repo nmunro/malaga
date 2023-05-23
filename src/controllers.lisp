@@ -90,9 +90,9 @@
   (car (mito:select-dao
     (model controller)
     (mito:includes 'malaga/models:card)
-    (mito:includes 'malaga/models:user)
+    (sxql:inner-join :card :on (:= :card.id :collection.card_id))
     (sxql:where (:not-in :name exclude))
-    (sxql:order-by (:random))
+    (sxql:order-by (:rand))
     (sxql:limit 1))))
 
 (defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))

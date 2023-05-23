@@ -31,7 +31,7 @@
   ((name              :col-type (:varchar 2048))
    (lang              :col-type (:varchar 32))
    (scryfall-id       :col-type (:varchar 36))
-   (scryfall-uri      :col-type (:varchar 255))
+   (scryfall-uri      :col-type (:varchar 512))
    (uri               :col-type (:varchar 255))
    (rarity            :col-type (:varchar 16))
    (price-usd         :col-type (:real))
@@ -51,7 +51,7 @@
 
 (mito:deftable user ()
   ((name     :col-type (:varchar 255))
-   (file     :col-type (:varchar 2048))
+   (file     :col-type (:varchar 512))
    (profile  :col-type (or (:text) :null))
    (checksum :col-type (or (:varchar 256) :null)))
   (:unique-keys name file))
@@ -59,7 +59,7 @@
 (mito:deftable collection ()
   ((user     :col-type user)
    (card     :col-type card)
-   (extras   :col-type (or (:varchar 1024) :null))
+   (extras   :col-type (or (:varchar 512) :null))
    (quantity :col-type (or (:integer) :null)))
   (:unique-keys (user card extras)))
 

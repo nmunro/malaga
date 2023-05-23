@@ -5,8 +5,11 @@
 
 (in-package malaga/web)
 
-;; (mito:connect-toplevel :mysql :database-name "myapp" :username "fukamachi" :password "c0mon-1isp")
-(mito:connect-toplevel :sqlite3 :database-name (uiop:getenv "MALAGA_DB"))
+(mito:connect-toplevel :mysql
+                       :database-name (uiop:getenv "MALAGA_DB")
+                       :username (uiop:getenv "MALAGA_MYSQL_USERNAME")
+                       :password (uiop:getenv "MALAGA_MYSQL_PASSWORD")
+                       :port 3306)
 
 (defparameter +app+ (make-instance 'ningle:<app>))
 
