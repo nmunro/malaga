@@ -4,8 +4,16 @@
 
 (in-package malaga/tools/player)
 
+(defun get-start-time ()
+  (multiple-value-bind (second minute hour date month year day daylight-p zone)
+      (get-decoded-time)
+    (declare (ignore day))
+    (if daylight-p
+        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (1+ zone))
+        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (+ zone)))))
+
 (defun process-players (dropbox-location)
-  (let ((now (local-time:now)))
+  (let ((now (get-start-time)))
     (format t "Processing Players~%")
 
     ; Add cards
@@ -20,7 +28,9 @@
         (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
         (mito:save-dao user)))
 
-    (clean-up-old-data dropbox-location now)))
+    ;@TODO: Find a mysql way to clean out old data
+    ;(clean-up-old-data dropbox-location now)))
+    ))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
