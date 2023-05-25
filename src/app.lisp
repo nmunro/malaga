@@ -20,9 +20,12 @@
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
 
-(defun start-app ()
+(defun start-app (&key (server :hunchentoot) (address (machine-instance)) (port 5000))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
-  (clack:clackup +app+))
+  (clack:clackup +app+
+                 :server server
+                 :address address
+                 :port port))
 
 (defun stop-app (instance)
   (clack:stop instance))
