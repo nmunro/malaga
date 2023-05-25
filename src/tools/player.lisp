@@ -8,9 +8,7 @@
   (multiple-value-bind (second minute hour date month year day daylight-p zone)
       (get-decoded-time)
     (declare (ignore day))
-    (if daylight-p
-        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (1+ zone))
-        (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d.~6,'0d~A" year month date hour minute second 0 (+ zone)))))
+    (format nil "~A-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d" year month date hour minute second)))
 
 (defun process-players (dropbox-location)
   (let ((now (get-start-time)))
@@ -28,9 +26,7 @@
         (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
         (mito:save-dao user)))
 
-    ;@TODO: Find a mysql way to clean out old data
-    ;(clean-up-old-data dropbox-location now)))
-    ))
+    (clean-up-old-data dropbox-location now)))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
