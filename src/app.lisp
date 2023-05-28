@@ -1,6 +1,7 @@
 (defpackage malaga/web
   (:use :cl)
   (:export #:start-app
+           #:main
            #:stop-app))
 
 (in-package malaga/web)
@@ -20,7 +21,22 @@
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
 
-(defun start-app (&key (server :hunchentoot) (address (machine-instance)) (port 5000))
+(defun main (&key (server :hunchentoot) (address (uiop:getenv "MALAGA_ADDRESS")) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
+  (start-app :server server :address address :port port)
+  ;; let the webserver run.
+  ;; warning: hardcoded "hunchentoot".
+  (handler-case (bt:join-thread (find-if (lambda (th)
+                                            (search "hunchentoot" (bt:thread-name th)))
+                                         (bt:all-threads)))
+    ;; Catch a user's C-c
+    (#+sbcl sb-sys:interactive-interrupt
+      () (progn
+           (format *error-output* "Aborting.~&")
+           (clack:stop *server*)
+           (uiop:quit)))
+        (error (c) (format t "Woops, an unknown error occured:~&~a~&" c))))
+
+(defun start-app (&key (server :hunchentoot) (address (uiop:getenv "MALAGA_ADDRESS")) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
   (clack:clackup +app+
                  :server server
