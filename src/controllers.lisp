@@ -121,9 +121,10 @@
 (defmethod cards ((controller collection) player)
   (mito:select-dao 'malaga/models:collection (mito:includes 'malaga/models:card) (sxql:where (:= :user player))))
 
-(defmethod delete-before ((controller controller) updated)
-  (dolist (collection (mito:select-dao (model controller) (sxql:where (:> :updated_at updated))))
-    (mito:delete-dao collection)))
+(defmethod delete-before ((controller collection) (user malaga/models:user) (updated string))
+  (let ((query (mito:select-dao (model controller) (mito:includes 'malaga/models:user) (sxql:where (:and (:< :updated_at updated) (:= :user user))))))
+    (dolist (collection query)
+        (mito:delete-dao collection))))
 
 (defvar +user+ (make-instance 'user))
 (defvar +collection+ (make-instance 'collection))

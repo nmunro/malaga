@@ -18,15 +18,14 @@
     (dolist (user-path (find-card-lists dropbox-location))
       (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path user-path) :file (namestring user-path))))
         (when (update-user-p user)
-            (update-user user))))
+            (update-user user)
+            (clean-up-old-data user dropbox-location now))))
 
     ; Add profiles
     (dolist (profile (find-profiles dropbox-location))
       (let ((user (malaga/controllers:get-or-create malaga/controllers:+user+ :name (get-username-from-path profile))))
         (setf (slot-value user 'malaga/models:profile) (uiop:read-file-string profile))
-        (mito:save-dao user)))
-
-    (clean-up-old-data dropbox-location now)))
+        (mito:save-dao user)))))
 
 (defun get-list-of-players-from-files (dropbox-location)
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
@@ -65,8 +64,8 @@
         :for path = (probe-file (pathname (format nil "~A/profile.html" dir)))
         :if path :collect path))
 
-(defun clean-up-old-data (dropbox-location now)
-  (malaga/controllers:delete-before malaga/controllers:+collection+ now)
+(defun clean-up-old-data (user dropbox-location now)
+  (malaga/controllers:delete-before malaga/controllers:+collection+ user now)
 
   (dolist (user (malaga/controllers:stale-users malaga/controllers:+user+ (get-list-of-players-from-files dropbox-location)))
     (malaga/controllers:delete malaga/controllers:+collection+ :user user)
