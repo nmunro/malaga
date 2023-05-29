@@ -112,7 +112,7 @@
      (cond
         ((and (string/= search "") player)
             (getf (car (mito:retrieve-by-sql
-                (sxql:select ((:count :*)) (sxql:from :collection)
+                (sxql:select ((:as (:count :*) :num)) (sxql:from :collection)
                     (sxql:inner-join :card :on (:= :card.id :collection.card_id))
                     (sxql:inner-join :user :on (:= :user.id :collection.user_id))
                     (sxql:where (:and (:like :card.name (format nil "%~A%" search)) (:= :user_id (mito:object-id player)))))))
