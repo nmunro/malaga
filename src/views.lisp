@@ -31,7 +31,7 @@
           (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500")))
       (multiple-value-bind (count offset limit results)
-            (malaga/controllers:search malaga/controllers:+collection+ search user :paginate t :offset offset :limit limit)
+            (malaga/controllers:search malaga/controllers:+collection+ search :player user :paginate t :offset offset :limit limit)
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
             (if user
@@ -51,7 +51,7 @@
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500"))
           (search (or (cdr (assoc "search" params :test #'string=)) "")))
         (multiple-value-bind (count offset limit results)
-            (malaga/controllers:search malaga/controllers:+collection+ search user :paginate t :offset offset :limit limit)
+            (malaga/controllers:search malaga/controllers:+collection+ search :player user :paginate t :offset offset :limit limit)
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
             (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results)))))

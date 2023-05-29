@@ -49,7 +49,7 @@
   (:documentation "Deletes an object"))
 
 (defmethod all ((controller controller))
-  (mito:retrieve-by-sql (sxql:select (:*) (sxql:from (model controller)))))
+  (mito:select-dao (model controller)))
 
 (defmethod get ((controller controller) &rest kws &key &allow-other-keys)
   (apply #'mito:find-dao (cons (model controller) kws)))
@@ -95,22 +95,47 @@
     (sxql:order-by (:rand))
     (sxql:limit 1))))
 
-(defmethod search ((controller collection) search player &key (paginate nil) (offset 0) (limit 500))
+(defmethod search ((controller collection) (search string) &key (player nil) (paginate nil) (offset 0) (limit 500))
   (let ((query (mito:select-dao (model controller)
             (mito:includes 'malaga/models:card)
             (mito:includes 'malaga/models:user)
             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+            (sxql:where (:like :name (format nil "%~A%" search)))
 
-            (if player
-                (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search))))
-                (sxql:where (:like :name (format nil "%~A%" search))))
+            (when player
+                (sxql:where (:and (:= :user player) (:like :name (format nil "%~A%" search)))))
 
             (when paginate
                 (sxql:limit (parse-integer offset) (parse-integer limit))))))
+
     (values
-     (if (string= search "")
-         (mito:count-dao (model controller))
-         (length query))
+     (cond
+        ((and (string/= search "") player)
+            (getf (car (mito:retrieve-by-sql
+                (sxql:select ((:count :*)) (sxql:from :collection)
+                    (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+                    (sxql:inner-join :user :on (:= :user.id :collection.user_id))
+                    (sxql:where (:and (:like :card.name (format nil "%~A%" search)) (:= :user_id (mito:object-id player)))))))
+                :num))
+
+        ((string/= search "")
+            (getf (car (mito:retrieve-by-sql
+                (sxql:select ((:as (:count :*) :num)) (sxql:from :collection)
+                    (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+                    (sxql:inner-join :user :on (:= :user.id :collection.user_id))
+                    (sxql:where (:like :card.name (format nil "%~A%" search))))))
+            :num))
+
+        ((and (string= search "") player)
+            (getf (car (mito:retrieve-by-sql
+                (sxql:select ((:as (:count :*) :num)) (sxql:from :collection)
+                    (sxql:inner-join :card :on (:= :card.id :collection.card_id))
+                    (sxql:inner-join :user :on (:= :user.id :collection.user_id))
+                    (sxql:where (:= :user_id (mito:object-id player))))))
+            :num))
+
+        (t
+            (getf (car (mito:retrieve-by-sql (sxql:select ((:as (:count :*) :num)) (sxql:from :collection)))) :num)))
      (parse-integer offset)
      (parse-integer limit)
      query)))
