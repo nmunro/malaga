@@ -21,7 +21,7 @@
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
 
-(defun main (&key (server :hunchentoot) (address (uiop:getenv "MALAGA_ADDRESS")) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
+(defun main (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (start-app :server server :address address :port port)
   ;; let the webserver run.
   ;; warning: hardcoded "hunchentoot".
@@ -36,7 +36,7 @@
            (uiop:quit)))
         (error (c) (format t "Woops, an unknown error occured:~&~a~&" c))))
 
-(defun start-app (&key (server :hunchentoot) (address (uiop:getenv "MALAGA_ADDRESS")) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
+(defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
   (clack:clackup +app+
                  :server server

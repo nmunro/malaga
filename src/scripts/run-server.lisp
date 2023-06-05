@@ -1,4 +1,4 @@
-(load "~/quicklisp/setup.lisp")
+(load "setup.lisp")
 (ql:quickload :malaga)
 
 (malaga/web:main)
