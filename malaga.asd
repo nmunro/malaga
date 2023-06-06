@@ -19,7 +19,6 @@
                 :components
                 ((:file "utils")
                  (:file "models")
-                 (:file "db")
                  (:file "controllers")
                  (:file "views")
                  (:module "tools"
