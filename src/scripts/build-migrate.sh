@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-sbcl --script build-migrate.lisp --non-interactive
+sbcl --load /opt/quicklisp/setup.lisp --script build-migrate.lisp --non-interactive

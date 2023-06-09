@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sbcl --script build-sync-scryfall-data.lisp --non-interactive
+sbcl --load /opt/quicklisp/setup.lisp --script build-sync-scryfall-data.lisp --non-interactive

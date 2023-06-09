@@ -1,0 +1,13 @@
+[Unit]
+Description=Running Malaga Trader Web App
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/sbcl --load /opt/quicklisp/setup.lisp --script /opt/quicklisp/local-projects/malaga-drift-trader/src/scripts/run-server.lisp --non-interactive --disable-debugger
+Type=simple
+Restart=always
+RestartSec=10
+
+# Start or restart at boot:
+[Install]
+WantedBy=network.target
