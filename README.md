@@ -22,8 +22,10 @@
  - MALAGA_MYSQL_PASSWORD
  - MALAGA_PORT
  
-The value for `MALAGA_BULK_DATA` is "https://api.scryfall.com/bulk-data"
-The value for `MALAGA_SETS` is "https://api.scryfall.com/sets"
+ * The value for `MALAGA_BULK_DATA` is "https://api.scryfall.com/bulk-data"
+ * The value for `MALAGA_SETS` is "https://api.scryfall.com/sets"
+ 
+ When you have decided values for these, you will need to create a file `/etc/profile.d/malaga.sh` and export these using the `export` command.
 
 ### Install Quicklisp
 
@@ -31,14 +33,16 @@ Quicklisp must be installed outside of a user home folder, and `/opt` is as good
 
     # curl https://beta.quicklisp.org/quicklisp.lisp -o /opt/quicklisp.lisp
     # sbcl --load /opt/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/opt/quicklisp/")' --quit
-    # sbcl --load /opt/quicklisp.lisp --eval '(ql:add-to-init-file)' --quit
+    # sbcl --load /opt/quicklisp/setup.lisp --eval '(ql:add-to-init-file)' --quit
+    
+### Setting permissions
+
+    # chown -R <user>:<group> /opt/quicklisp
     
 ### Installing malaga-drift-trader
 
     # cd /opt/quicklisp/local-projects
     # git clone https://github.com/nmunro/malaga-drift-trader
-    
-### Set up the environmental variables
     
 ### Building the binaries
 
@@ -74,7 +78,7 @@ Environment="MALAGA_MYSQL_PASSWORD="
 Environment="MALAGA_PORT=5000"
 ```
 
-You will need to provide values for the environmental variables.
+You will need to provide values for the environmental variables, these are the same as defined earlier in the documentation.
 
 ## Author
 
