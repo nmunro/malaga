@@ -14,14 +14,14 @@
 
 Quicklisp must be installed outside of a user home folder, and `/opt` is as good a place as any.
 
-    `# curl https://beta.quicklisp.org/quicklisp.lisp -o /opt/quicklisp.lisp`
-    `# sbcl --load /opt/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/opt/quicklisp/")' --quit`
-    `# sbcl --load /opt/quicklisp.lisp --eval '(ql:add-to-init-file)' --quit`
+    # curl https://beta.quicklisp.org/quicklisp.lisp -o /opt/quicklisp.lisp
+    # sbcl --load /opt/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/opt/quicklisp/")' --quit
+    # sbcl --load /opt/quicklisp.lisp --eval '(ql:add-to-init-file)' --quit
     
 ### Installing malaga-drift-trader
 
-    `# cd /opt/quicklisp/local-projects`
-    `# git clone https://github.com/nmunro/malaga-drift-trader`
+    # cd /opt/quicklisp/local-projects
+    # git clone https://github.com/nmunro/malaga-drift-trader
     
 ### Building the binaries
 
@@ -29,14 +29,14 @@ While the main web application will be run as an interpreted lisp project, a num
 
 First make the `/opt/malaga/bin` directory
 
-    `# mkdir -p /opt/malaga/bin`
-    `# cd /opt/quicklisp/local-projects/malaga-drift-trader/src/scripts`
-    `# ./build-migrate.sh`
-    `# mv migrate /opt/malaga/bin/`
-    `# ./build-sync-player-data.sh`
-    `# mv sync-scryfall-data /opt/malaga/bin/`
-    `# ./build-sync-scryfall-data.sh`
-    `# mv sync-player-data /opt/malaga/bin/`
+    # mkdir -p /opt/malaga/bin
+    # cd /opt/quicklisp/local-projects/malaga-drift-trader/src/scripts
+    # ./build-migrate.sh
+    # mv migrate /opt/malaga/bin/
+    # ./build-sync-player-data.sh
+    # mv sync-scryfall-data /opt/malaga/bin/
+    # ./build-sync-scryfall-data.sh
+    # mv sync-player-data /opt/malaga/bin/
 
 ### Installing Systemd services
 
