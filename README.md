@@ -9,6 +9,21 @@
  - sbcl
  - git
  - curl
+ 
+### Needed environmental variables
+
+ - MALAGA_DROPBOX_LOCATION
+ - MALAGA_CARD_DATA
+ - MALAGA_DB
+ - MALAGA_LOCK
+ - MALAGA_BULK_DATA
+ - MALAGA_SETS
+ - MALAGA_MYSQL_USERNAME
+ - MALAGA_MYSQL_PASSWORD
+ - MALAGA_PORT
+ 
+The value for `MALAGA_BULK_DATA` is "https://api.scryfall.com/bulk-data"
+The value for `MALAGA_SETS` is "https://api.scryfall.com/sets"
 
 ### Install Quicklisp
 
@@ -22,6 +37,8 @@ Quicklisp must be installed outside of a user home folder, and `/opt` is as good
 
     # cd /opt/quicklisp/local-projects
     # git clone https://github.com/nmunro/malaga-drift-trader
+    
+### Set up the environmental variables
     
 ### Building the binaries
 
