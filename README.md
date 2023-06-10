@@ -1,4 +1,4 @@
-# malaga-drift-trader 0.0.1
+# malaga-drift-trader 1.0.0
 
 ## Instructions
 
@@ -9,6 +9,7 @@
  - sbcl
  - git
  - curl
+ - libmysqlclient (you will need to install the mysql-dev package)
  
 ### Needed environmental variables
 
@@ -44,6 +45,14 @@ Quicklisp must be installed outside of a user home folder, and `/opt` is as good
     # cd /opt/quicklisp/local-projects
     # git clone https://github.com/nmunro/malaga-drift-trader
     
+### Creating the database
+
+Prior to building the binaries it is important to setup the database
+
+    # mysql -uroot -p
+    > CREATE DATABASE malaga;
+    > exit;
+    
 ### Building the binaries
 
 While the main web application will be run as an interpreted lisp project, a number of tools (migration, syncing scryfall, syncing player data) can be compiled as a stand alone application for speed reason. They will be built and then moved to another location (/opt/malaga/bin) as build artifacts should be kept outside the scripts folder.
@@ -58,6 +67,12 @@ First make the `/opt/malaga/bin` directory
     # mv sync-scryfall-data /opt/malaga/bin/
     # ./build-sync-scryfall-data.sh
     # mv sync-player-data /opt/malaga/bin/
+    
+### Running the binaries
+
+    # /opt/malaga/migrate
+    # /opt/malaga/sync-scryfall-data
+    # /opt/malaga/sync-player-data
 
 ### Installing Systemd services
 
@@ -79,6 +94,12 @@ Environment="MALAGA_PORT=5000"
 ```
 
 You will need to provide values for the environmental variables, these are the same as defined earlier in the documentation.
+
+### Reloading and starting daemons
+
+    # systemctl daemon-reload
+    # systemctl start malaga.service
+    # journalctl -u malaga.service -f -n 30
 
 ## Author
 

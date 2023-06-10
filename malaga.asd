@@ -1,5 +1,5 @@
 (defsystem "malaga"
-  :version "0.0.1"
+  :version "1.0.0"
   :author "nmunro"
   :license "BSD3-Clause"
   :depends-on (:serapeum
