@@ -21,20 +21,20 @@
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
 
+(defun find-hunchentoot-thread (th) (search "hunchentoot" (bt:thread-name th)))
+
 (defun main (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
-  (start-app :server server :address address :port port)
-  ;; let the webserver run.
-  ;; warning: hardcoded "hunchentoot".
-  (handler-case (bt:join-thread (find-if (lambda (th)
-                                            (search "hunchentoot" (bt:thread-name th)))
-                                         (bt:all-threads)))
+  (let ((app (start-app :server server :address address :port port)))
+    ;; let the webserver run.
+    ;; warning: hardcoded "hunchentoot".
+    (handler-case (bt:join-thread (find-if #'find-hunchentoot-thread (bt:all-threads)))
     ;; Catch a user's C-c
     (#+sbcl sb-sys:interactive-interrupt
       () (progn
            (format *error-output* "Aborting.~&")
-           (clack:stop *server*)
+           (clack:stop app)
            (uiop:quit)))
-        (error (c) (format t "Woops, an unknown error occured:~&~a~&" c))))
+        (error (c) (format t "Woops, an unknown error occured:~&~a~&" c)))))
 
 (defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
