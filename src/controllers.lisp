@@ -136,6 +136,7 @@
 
         (t
             (getf (car (mito:retrieve-by-sql (sxql:select ((:as (:count :*) :num)) (sxql:from :collection)))) :num)))
+
      (parse-integer offset)
      (parse-integer limit)
      query)))
