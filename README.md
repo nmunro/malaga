@@ -95,6 +95,11 @@ Environment="MALAGA_PORT=5000"
 
 You will need to provide values for the environmental variables, these are the same as defined earlier in the documentation.
 
+### Allowing port 80
+
+    # sudo apt-get install libcap2-bin
+    # sudo setcap cap_net_bind_service=+ep /usr/bin/sbcl
+
 ### Reloading and starting daemons
 
     # systemctl daemon-reload
