@@ -4,9 +4,13 @@
            #:delete
            #:get
            #:search
-           #:filter)
+           #:filter
+           #:first
+           #:last)
   (:export #:model
            #:create
+           #:first
+           #:last
            #:get
            #:get-or-create
            #:get-object-or-default
@@ -33,6 +37,12 @@
 (defgeneric all (controller)
   (:documentation "Returns all records"))
 
+(defgeneric first (controller)
+  (:documentation "Returns the row with the lowest ID"))
+
+(defgeneric last (controller)
+  (:documentation "Returns the row with the highest ID"))
+
 (defgeneric get (controller &rest kws &key &allow-other-keys)
   (:documentation "Returns a single record matching the specified conditions, raises a multiple-items error if more than one match, raises a not-found error if no matches"))
 
@@ -50,6 +60,12 @@
 
 (defmethod all ((controller controller))
   (mito:select-dao (model controller)))
+
+(defmethod first ((controller controller))
+  (car (mito:select-dao (model controller) (sxql:order-by (:ASC :id)) (sxql:limit 1))))
+
+(defmethod last ((controller controller))
+  (car (mito:select-dao (model controller) (sxql:order-by (:DESC :id)) (sxql:limit 1))))
 
 (defmethod get ((controller controller) &rest kws &key &allow-other-keys)
   (apply #'mito:find-dao (cons (model controller) kws)))
