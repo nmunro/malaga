@@ -20,6 +20,10 @@
 (malaga/web/routes:defroute +app+ "/players" #'malaga/views:players)
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
+(defmethod ningle:not-found ((this ningle:<app>))
+  (declare (ignore this))
+  (setf (lack.response:response-status ningle:*response*) 404)
+  (malaga/views:render "404.html"))
 
 ;; warning: hardcoded "hunchentoot".
 (defun find-hunchentoot-thread (th) (search "hunchentoot" (bt:thread-name th)))
