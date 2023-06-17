@@ -1,13 +1,13 @@
 (defpackage malaga/views
   (:use :cl)
-  (:export #:Http404
-           #:index
-           #:cards
+  (:export #:index
            #:card
+           #:cards
            #:card-players
            #:players
            #:player
-           #:player-cards))
+           #:player-cards
+           #:render))
 
 (in-package malaga/views)
 
@@ -55,12 +55,3 @@
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
             (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results)))))
-
-(defun Http404 (params)
-  (setf (lack.response:response-status ningle:*response*) 404)
-  (format nil "Page Not Found: ~A" (cdr (assoc :missing params :test #'string=))))
-
-(defun Http500 (params)
-  (declare (ignore params))
-  (setf (lack.response:response-status ningle:*response*) 500)
-  (format nil "Internal Server Error"))
