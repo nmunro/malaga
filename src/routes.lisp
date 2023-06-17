@@ -4,5 +4,5 @@
 
 (in-package malaga/web/routes)
 
-(defun defroute (app route fn)
-  (setf (ningle:route app route) fn))
+(defun defroute (app route fn &key (method :GET))
+  (setf (ningle:route app route :method method) fn))
