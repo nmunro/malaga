@@ -101,8 +101,7 @@
     :user-pass #'(lambda (user) (getf (get-user user) :pass))
     :user-roles #'(lambda (user) (getf (get-user user) :roles))
     :session ningle:*session*
-    :denied #'(lambda (&optional params) (cl-markup:html5 (:h1 "Generic auth denied page"))))
-  (format t "~A: ~A~%" ningle:*session* (type-of 'lack.middleware.session)))
+    :denied #'(lambda (&optional params) (cl-markup:html5 (:h1 "Generic auth denied page")))))
 
 (defun stop-app (instance)
   (clack:stop instance))
