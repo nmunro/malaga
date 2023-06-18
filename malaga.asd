@@ -14,7 +14,8 @@
                :clack
                :ningle
                :mito
-               :djula)
+               :djula
+               :hermetic)
   :components ((:module "src"
                 :components
                 ((:file "utils")
