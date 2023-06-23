@@ -26,15 +26,15 @@
 (defmacro get-user (username)
   `(gethash ,username *users*))
 
-(malaga/web/routes:defroute +app+ "/" #'malaga/views:index)
-(malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards)
-(malaga/web/routes:defroute +app+ "/cards/:card" #'malaga/views:card)
-(malaga/web/routes:defroute +app+ "/players" #'malaga/views:players)
-(malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
-(malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
-(malaga/web/routes:defroute +app+ "/profile" #'malaga/views:profile)
+(malaga/web/routes:defroute +app+ "/" #'malaga/views:index :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/cards/:card" #'malaga/views:card :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/players" #'malaga/views:players :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/profile" #'malaga/views:profile :METHOD :GET)
 (malaga/web/routes:defroute +app+ "/login" #'malaga/views:login :METHOD :POST)
-(malaga/web/routes:defroute +app+ "/logout" #'malaga/views:login :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/logout" #'malaga/views:logout :METHOD :GET)
 (malaga/web/routes:defroute +app+ "/admin" #'malaga/views:admin :METHOD :GET)
 
 ;; This is the way to handle missing routes
@@ -67,7 +67,7 @@
     :user-pass #'(lambda (user) (getf (get-user user) :pass))
     :user-roles #'(lambda (user) (getf (get-user user) :roles))
     :session ningle:*session*
-    :denied #'(lambda (&optional params) (cl-markup:html5 (:h1 "Generic auth denied page")))))
+    :denied #'(lambda (&optional params) (malaga/views:render "403.html" :msg "Generic auth denied page"))))
 
 (defun stop-app (instance)
   (clack:stop instance))
