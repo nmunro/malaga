@@ -1,12 +1,16 @@
 (defpackage malaga/views
   (:use :cl)
-  (:export #:index
+  (:export #:admin
            #:card
            #:cards
            #:card-players
+           #:index
+           #:login
+           #:logout
            #:players
            #:player
            #:player-cards
+           #:profile
            #:render))
 
 (in-package malaga/views)
@@ -55,3 +59,29 @@
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
             (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results)))))
+
+(defun profile (params)
+    (if (hermetic:logged-in-p)
+        (render "profile.html" :msg (format nil "Welcome, ~A!" (hermetic:user-name)))
+        (render "login.html")))
+
+(defun login (params)
+    (let* ((username (cdr (assoc "username" params :test #'equal)))
+           (password (cdr (assoc "password" params :test #'equal)))
+           (params (list :|username| username :|password| password)))
+        (hermetic:login params
+            (render "profile.html" :msg "You are logged in")
+            (render "login.html" :msg "Wrong password :c")
+            (render "login.html" :msg (format nil "No such username ~A" username)))))
+
+(defun logout (params)
+    (hermetic:logout
+        (render "login.html" :msg "You are logged out")
+        (render "login.html" :msg "You are not logged in.")))
+
+(defun admin (params)
+    (hermetic:auth (:admin)
+        (render "admin.html" :msg "If you are seeing this, you are an admin.")
+        (progn
+            (setf (lack.response:response-status ningle:*response*) 403)
+            (render "403.html"))))

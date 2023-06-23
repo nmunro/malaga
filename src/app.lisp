@@ -32,44 +32,10 @@
 (malaga/web/routes:defroute +app+ "/players" #'malaga/views:players)
 (malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player)
 (malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards)
-
-(setf (ningle:route +app+ "/profile")
-      (lambda (params)
-        (if (hermetic:logged-in-p)
-            (cl-markup:html5 (:p (format nil "Welcome, ~A!" (hermetic:user-name)))
-                   (:a :href "/logout" "Logout"))
-            (cl-markup:html5
-             (:form :action "/login" :method "post"
-                    "Username:" (:input :type "text" :name :|username|) (:br)
-                    "Password:" (:input :type "password" :name :|password|) (:br)
-                    (:input :type "submit" :value "Login"))))))
-
-(setf (ningle:route +app+ "/login" :method :POST)
-      (lambda (params)
-        (let* ((username (cdr (assoc "username" params :test #'equal)))
-               (password (cdr (assoc "password" params :test #'equal)))
-               (params (list :|username| username :|password| password)))
-         (hermetic:login params
-                (cl-markup:html5 (:h1 "You are logged in"))
-                (cl-markup:html5 (:h1 "Wrong password :c"))
-                (cl-markup:html5 (:h1 "No such username " params))))))
-
-(setf (ningle:route +app+ "/logout" :method :GET)
-      (lambda (params)
-        (hermetic:logout
-         (cl-markup:html5 (:h1 "You are logged out"))
-         (cl-markup:html5 (:h1 "You are not logged in.")))))
-
-(setf (ningle:route +app+ "/users-only" :method :GET)
-      (lambda (params)
-        (hermetic:auth (:user)
-              (cl-markup:html5 (:h1 "If you are seeing this, you are a user.")))))
-
-(setf (ningle:route +app+ "/admins-only" :method :GET)
-      (lambda (params)
-        (hermetic:auth (:admin)
-              (cl-markup:html5 (:h1 "If you are seeing this, you are an admin."))
-              (cl-markup:html5 (:h1 "Custom auth denied page. You are not authorized!")))))
+(malaga/web/routes:defroute +app+ "/profile" #'malaga/views:profile)
+(malaga/web/routes:defroute +app+ "/login" #'malaga/views:login :METHOD :POST)
+(malaga/web/routes:defroute +app+ "/logout" #'malaga/views:login :METHOD :GET)
+(malaga/web/routes:defroute +app+ "/admin" #'malaga/views:admin :METHOD :GET)
 
 ;; This is the way to handle missing routes
 (defmethod ningle:not-found ((this ningle:<app>))
