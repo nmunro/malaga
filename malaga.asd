@@ -27,6 +27,7 @@
                   ((:file "player")
                    (:file "scryfall")
                    (:file "main")))
+                 (:file "admin")
                  (:file "routes")
                  (:file "app"))))
   :description "Generate a skeleton for modern project"

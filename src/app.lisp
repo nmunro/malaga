@@ -14,17 +14,12 @@
 
 (defparameter +app+ (make-instance 'ningle:<app>))
 
-(defparameter *users* (make-hash-table :test #'equal))
-
-(defun make-user (username pass roles)
-  (setf (gethash username *users*)
-        (list :pass (cl-pass:hash pass :type :pbkdf2-sha256 :iterations 10000) :roles roles)))
-
-(make-user "admin" "admin" (list :user :staff :admin))
-(make-user "joe.avg" "pass" (list :user))
-
-(defmacro get-user (username)
-  `(gethash ,username *users*))
+(hermetic:setup
+    :user-p #'(lambda (user) (malaga/controllers:get malaga/controllers:+user+ :name user))
+    :user-pass #'(lambda (user) (slot-value (malaga/controllers:get malaga/controllers:+user+ :name user) 'malaga/models:password))
+    :user-roles #'(lambda (user) (malaga/controllers:get malaga/controllers:+permissions+ :user (malaga/controllers:get malaga/controllers:+user+ :name user)))
+    :session ningle:*session*
+    :denied #'(lambda (&optional params) (malaga/views:render "403.html" :msg "Generic auth denied page")))
 
 (malaga/web/routes:defroute +app+ "/" #'malaga/views:index :METHOD :GET)
 (malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards :METHOD :GET)
@@ -61,13 +56,7 @@
 
 (defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
-  (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port)
-  (hermetic:setup
-    :user-p #'(lambda (user) (get-user user))
-    :user-pass #'(lambda (user) (getf (get-user user) :pass))
-    :user-roles #'(lambda (user) (getf (get-user user) :roles))
-    :session ningle:*session*
-    :denied #'(lambda (&optional params) (malaga/views:render "403.html" :msg "Generic auth denied page"))))
+  (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
 (defun stop-app (instance)
   (clack:stop instance))

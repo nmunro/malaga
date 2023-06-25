@@ -2,6 +2,8 @@
   (:use :cl)
   (:shadow #:set)
   (:export #:user
+           #:role
+           #:permissions
            #:user-id
            #:card
            #:id
@@ -15,6 +17,7 @@
            #:scryfall-uri
            #:uri
            #:extras
+           #:password
            #:price-usd
            #:price-usd-foil
            #:price-usd-etched
@@ -51,10 +54,18 @@
 
 (mito:deftable user ()
   ((name     :col-type (:varchar 255))
-   (file     :col-type (:varchar 512))
-   (profile  :col-type (or (:text) :null))
-   (checksum :col-type (or (:varchar 256) :null)))
-  (:unique-keys name file))
+   (password :col-type (:varchar 512))
+   (profile  :col-type (or (:text) :null)))
+  (:unique-keys name))
+
+(mito:deftable role ()
+  ((name :col-type (:varchar 255)))
+  (:unique-keys name))
+
+(mito:deftable permissions ()
+  ((user  :col-type user)
+   (role :col-type role))
+  (:unique-keys (user role)))
 
 (mito:deftable collection ()
   ((user     :col-type user)
@@ -62,8 +73,3 @@
    (extras   :col-type (or (:varchar 512) :null))
    (quantity :col-type (or (:integer) :null)))
   (:unique-keys (user card extras)))
-
-(defun sync-models ()
-  (mito:ensure-table-exists 'card)
-  (mito:ensure-table-exists 'user)
-  (mito:ensure-table-exists 'collection))

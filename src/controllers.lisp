@@ -26,6 +26,8 @@
            #:players
            #:stale-users
            #:+user+
+           #:+role+
+           #:+permissions+
            #:+collection+
            #:+card+))
 
@@ -90,6 +92,12 @@
 
 (defclass user (controller)
   ((model :initform 'malaga/models:user :reader model)))
+
+(defclass role (controller)
+  ((model :initform 'malaga/models:role :reader model)))
+
+(defclass permissions (controller)
+  ((model :initform 'malaga/models:permissions :reader model)))
 
 (defclass collection (controller)
   ((model :initform 'malaga/models:collection :reader model)))
@@ -169,5 +177,7 @@
         (mito:delete-dao collection))))
 
 (defvar +user+ (make-instance 'user))
+(defvar +role+ (make-instance 'role))
+(defvar +permissions+ (make-instance 'permissions))
 (defvar +collection+ (make-instance 'collection))
 (defvar +card+ (make-instance 'card))
