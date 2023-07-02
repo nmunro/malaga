@@ -75,7 +75,7 @@
         (cerberus:invalid-password (err)
           (return-from login (render "login.html" :msg (cerberus:msg err)))))
 
-    (render "profile.html" :msg (format nil "You are logged in, ~A" (cerberus:user-name))))
+    (malaga/http:redirect "/profile"))
 
 (defun logout (params)
   (when (cerberus:user-name)
