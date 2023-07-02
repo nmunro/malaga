@@ -80,9 +80,9 @@
 (defun logout (params)
   (when (cerberus:user-name)
     (cerberus:logout)
-    (return-from logout (render "login.html" :msg "You are logged out")))
+    (return-from logout (malaga/http:redirect "/")))
 
-  (render "login.html" :msg "You are not logged in"))
+  (malaga/http:redirect "/profile"))
 
 (defun admin (params)
   (unless (cerberus:auth "admin")

@@ -20,6 +20,7 @@
                 ((:file "utils")
                  (:file "models")
                  (:file "controllers")
+                 (:file "http")
                  (:file "views")
                  (:module "tools"
                   :components
