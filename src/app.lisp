@@ -1,7 +1,5 @@
 (defpackage malaga/web
   (:use :cl)
-  (:import-from :ningle
-                :*session*)
   (:export #:start-app
            #:main
            #:stop-app))

@@ -68,30 +68,25 @@
         (render "login.html")))
 
 (defun login (params)
-    (let ((username (cdr (assoc "username" params :test #'equal)))
-          (password (cdr (assoc "password" params :test #'equal))))
-      (handler-case
-            (cerberus:login :user username :password password)
+    (handler-case (cerberus:login :user (cdr (assoc "username" params :test #'equal)) :password (cdr (assoc "password" params :test #'equal)))
         (cerberus:invalid-user (err)
-          (return-from login (render "login.html" :msg (format nil "No such username ~A" username))))
+          (return-from login (render "login.html" :msg (cerberus:msg err))))
 
         (cerberus:invalid-password (err)
-          (return-from login (render "login.html" :msg "Wrong password :c"))))
+          (return-from login (render "login.html" :msg (cerberus:msg err)))))
 
-        (render "profile.html" :msg (format nil "You are logged in, ~A" (cerberus:user-name)))))
+    (render "profile.html" :msg (format nil "You are logged in, ~A" (cerberus:user-name))))
 
 (defun logout (params)
-  (cond
-    ((cerberus:user-name)
-        (cerberus:logout)
-        (render "login.html" :msg "You are logged out"))
+  (when (cerberus:user-name)
+    (cerberus:logout)
+    (return-from logout (render "login.html" :msg "You are logged out")))
 
-    (t
-     (render "login.html" :msg "You are not logged in"))))
+  (render "login.html" :msg "You are not logged in"))
 
 (defun admin (params)
-    (if (cerberus:auth :roles '("admin"))
-        (render "admin.html" :msg "If you are seeing this, you are an admin.")
-        (progn
-            (setf (lack.response:response-status ningle:*response*) 403)
-            (render "403.html"))))
+  (unless (cerberus:auth "admin")
+    (setf (lack.response:response-status ningle:*response*) 403)
+    (return-from admin (render "403.html")))
+
+  (render "admin.html" :msg "If you are seeing this, you are an admin."))
