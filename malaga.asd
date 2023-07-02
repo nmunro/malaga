@@ -12,7 +12,7 @@
                :local-time
                :data-table
                :clack
-               :ningle
+               :cerberus
                :mito
                :djula)
   :components ((:module "src"
@@ -26,6 +26,7 @@
                   ((:file "player")
                    (:file "scryfall")
                    (:file "main")))
+                 (:file "admin")
                  (:file "routes")
                  (:file "app"))))
   :description "Generate a skeleton for modern project"
