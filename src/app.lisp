@@ -49,15 +49,7 @@
 
 (defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
-  (cerberus:setup
-    :user-p #'(lambda (user)
-                (malaga/controllers:get malaga/controllers:+user+ :name user))
-    :user-pass #'(lambda (user)
-                   (slot-value (malaga/controllers:get malaga/controllers:+user+ :name user) 'malaga/models:password))
-    :user-roles #'(lambda (user)
-                    (loop :for role
-                          :in (malaga/controllers:search malaga/controllers:+permissions+ :player (malaga/controllers:get malaga/controllers:+user+ :name user))
-                          :collect (slot-value (slot-value role 'malaga/models:role) 'malaga/models:name))))
+  (cerberus:setup :user-p #'malaga/auth:user-p :user-pass #'malaga/auth:user-pass :user-roles #'malaga/auth:user-roles)
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
 (defun stop-app (instance)

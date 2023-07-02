@@ -28,6 +28,7 @@
                    (:file "main")))
                  (:file "admin")
                  (:file "routes")
+                 (:file "auth")
                  (:file "app"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))
