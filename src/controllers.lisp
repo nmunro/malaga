@@ -119,7 +119,16 @@
     (sxql:order-by (:rand))
     (sxql:limit 1))))
 
-(defmethod search ((controller collection) (search string) &key (player nil) (paginate nil) (offset 0) (limit 500))
+(defmethod search ((controller permissions) &key (search string) (player nil) (paginate nil) (offset 0) (limit 500))
+  (declare (ignore search paginate offset limit))
+    (mito:select-dao (model controller)
+            (mito:includes 'malaga/models:user)
+            (mito:includes 'malaga/models:role)
+            (sxql:inner-join :user :on (:= :user.id :permissions.user_id))
+            (sxql:inner-join :role :on (:= :role.id :permissions.role_id))
+            (sxql:where (:= :user player))))
+
+(defmethod search ((controller collection) &key (search string) (player nil) (paginate nil) (offset 0) (limit 500))
   (let ((query (mito:select-dao (model controller)
             (mito:includes 'malaga/models:card)
             (mito:includes 'malaga/models:user)

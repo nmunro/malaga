@@ -1,5 +1,7 @@
 (defpackage malaga/web
   (:use :cl)
+  (:import-from :ningle
+                :*session*)
   (:export #:start-app
            #:main
            #:stop-app))
@@ -13,13 +15,6 @@
                        :port 3306)
 
 (defparameter +app+ (make-instance 'ningle:<app>))
-
-(hermetic:setup
-    :user-p #'(lambda (user) (malaga/controllers:get malaga/controllers:+user+ :name user))
-    :user-pass #'(lambda (user) (slot-value (malaga/controllers:get malaga/controllers:+user+ :name user) 'malaga/models:password))
-    :user-roles #'(lambda (user) (malaga/controllers:get malaga/controllers:+permissions+ :user (malaga/controllers:get malaga/controllers:+user+ :name user)))
-    :session ningle:*session*
-    :denied #'(lambda (&optional params) (malaga/views:render "403.html" :msg "Generic auth denied page")))
 
 (malaga/web/routes:defroute +app+ "/" #'malaga/views:index :METHOD :GET)
 (malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards :METHOD :GET)
@@ -56,6 +51,15 @@
 
 (defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
+  (cerberus:setup
+    :user-p #'(lambda (user)
+                (malaga/controllers:get malaga/controllers:+user+ :name user))
+    :user-pass #'(lambda (user)
+                   (slot-value (malaga/controllers:get malaga/controllers:+user+ :name user) 'malaga/models:password))
+    :user-roles #'(lambda (user)
+                    (loop :for role
+                          :in (malaga/controllers:search malaga/controllers:+permissions+ :player (malaga/controllers:get malaga/controllers:+user+ :name user))
+                          :collect (slot-value (slot-value role 'malaga/models:role) 'malaga/models:name))))
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
 (defun stop-app (instance)

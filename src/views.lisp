@@ -1,5 +1,7 @@
 (defpackage malaga/views
   (:use :cl)
+  (:import-from :ningle
+                :*session*)
   (:export #:admin
            #:card
            #:cards
@@ -21,9 +23,9 @@
 
 (defun index (params)
   (declare (ignore params))
-    (render "index.html"
-        :players (malaga/controllers:all malaga/controllers:+user+)
-        :collection (malaga/controllers:random malaga/controllers:+collection+ :exclude '("Island" "Plains" "Forest" "Mountain" "Swamp"))))
+  (render "index.html"
+    :players (malaga/controllers:all malaga/controllers:+user+)
+    :collection (malaga/controllers:random malaga/controllers:+collection+ :exclude '("Island" "Plains" "Forest" "Mountain" "Swamp"))))
 
 (defun card (params)
     (let ((card (malaga/controllers:get malaga/controllers:+card+ :id (cdr (assoc :card params :test #'string=)))))
@@ -35,7 +37,7 @@
           (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500")))
       (multiple-value-bind (count offset limit results)
-            (malaga/controllers:search malaga/controllers:+collection+ search :player user :paginate t :offset offset :limit limit)
+            (malaga/controllers:search malaga/controllers:+collection+ :search search :player user :paginate t :offset offset :limit limit)
         (let* ((pages (cons 0 (loop :for x :from 1 :to (floor (/ count limit)) :collect (* x limit))))
                (page (or (position offset pages :test #'<=) (1- (length pages)))))
             (if user
@@ -61,26 +63,34 @@
             (render "cards.html" :player user :page page :pages pages :count count :offset offset :limit limit :results results)))))
 
 (defun profile (params)
-    (if (hermetic:logged-in-p)
-        (render "profile.html" :msg (format nil "Welcome, ~A!" (hermetic:user-name)))
+    (if (cerberus:logged-in-p)
+        (render "profile.html" :msg (format nil "Welcome, ~A!" (cerberus:user-name)))
         (render "login.html")))
 
 (defun login (params)
-    (let* ((username (cdr (assoc "username" params :test #'equal)))
-           (password (cdr (assoc "password" params :test #'equal)))
-           (params (list :|username| username :|password| password)))
-        (hermetic:login params
-            (render "profile.html" :msg "You are logged in")
-            (render "login.html" :msg "Wrong password :c")
-            (render "login.html" :msg (format nil "No such username ~A" username)))))
+    (let ((username (cdr (assoc "username" params :test #'equal)))
+          (password (cdr (assoc "password" params :test #'equal))))
+      (handler-case
+            (cerberus:login :user username :password password)
+        (cerberus:invalid-user (err)
+          (return-from login (render "login.html" :msg (format nil "No such username ~A" username))))
+
+        (cerberus:invalid-password (err)
+          (return-from login (render "login.html" :msg "Wrong password :c"))))
+
+        (render "profile.html" :msg (format nil "You are logged in, ~A" (cerberus:user-name)))))
 
 (defun logout (params)
-    (hermetic:logout
-        (render "login.html" :msg "You are logged out")
-        (render "login.html" :msg "You are not logged in.")))
+  (cond
+    ((cerberus:user-name)
+        (cerberus:logout)
+        (render "login.html" :msg "You are logged out"))
+
+    (t
+     (render "login.html" :msg "You are not logged in"))))
 
 (defun admin (params)
-    (hermetic:auth (:admin)
+    (if (cerberus:auth :roles '("admin"))
         (render "admin.html" :msg "If you are seeing this, you are an admin.")
         (progn
             (setf (lack.response:response-status ningle:*response*) 403)

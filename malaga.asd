@@ -12,10 +12,9 @@
                :local-time
                :data-table
                :clack
-               :ningle
+               :cerberus
                :mito
-               :djula
-               :hermetic)
+               :djula)
   :components ((:module "src"
                 :components
                 ((:file "utils")
