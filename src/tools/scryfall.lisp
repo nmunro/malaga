@@ -20,7 +20,7 @@
         (write-char #\Backspace))
 
     (let ((card (json:decode-json-from-string (str:trim object))))
-      (malaga/controllers:get-or-create malaga/controllers:+card+
+      (barghest/controllers:get-or-create malaga/trader/controllers:+card+
         :scryfall-id (cdr (assoc :id card))
         :name (cdr (assoc :name card))
         :lang (cdr (assoc :lang card))

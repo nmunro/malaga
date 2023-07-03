@@ -1,17 +1,9 @@
 (defpackage malaga/tools
   (:use :cl)
-  (:export #:migrate
-           #:sync-player-data
+  (:export #:sync-player-data
            #:sync-scryfall-data))
 
 (in-package malaga/tools)
-
-(defun migrate ()
-  (let ((mito:*connection* (dbi:connect :mysql :database-name (uiop:getenv "MALAGA_DB") :username (uiop:getenv "MALAGA_MYSQL_USERNAME") :password (uiop:getenv "MALAGA_MYSQL_PASSWORD") :port 3306))
-        (output nil))
-      (setf output (unwind-protect (progn (malaga/models:sync-models))))
-      (dbi:disconnect mito:*connection*)
-      output))
 
 (defun sync-scryfall-data ()
   (let ((mito:*connection* (dbi:connect :mysql :database-name (uiop:getenv "MALAGA_DB") :username (uiop:getenv "MALAGA_MYSQL_USERNAME") :password (uiop:getenv "MALAGA_MYSQL_PASSWORD") :port 3306))

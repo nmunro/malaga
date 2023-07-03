@@ -3,7 +3,6 @@
   :author "nmunro"
   :license "BSD3-Clause"
   :depends-on (:serapeum
-               :alexandria
                :dexador
                :osicat
                :cl-json
@@ -12,24 +11,27 @@
                :local-time
                :data-table
                :clack
-               :cerberus
-               :mito
-               :djula)
+               :barghest)
   :components ((:module "src"
                 :components
-                ((:file "utils")
-                 (:file "models")
-                 (:file "controllers")
-                 (:file "http")
-                 (:file "views")
+                ((:module "admin"
+                  :components
+                  ((:file "views")
+                   (:file "models")
+                   (:file "controllers")
+                   (:file "auth")))
+                 (:module "trader"
+                  :components
+                  ((:file "models")
+                   (:file "controllers")
+                   (:file "views")))
+                 (:file "manage")
                  (:module "tools"
                   :components
-                  ((:file "player")
+                  ((:file "utils")
+                   (:file "player")
                    (:file "scryfall")
                    (:file "main")))
-                 (:file "admin")
-                 (:file "routes")
-                 (:file "auth")
                  (:file "app"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))

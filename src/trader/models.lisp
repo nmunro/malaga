@@ -1,11 +1,7 @@
-(defpackage malaga/models
+(defpackage malaga/trader/models
   (:use :cl)
   (:shadow #:set)
-  (:export #:user
-           #:role
-           #:permissions
-           #:user-id
-           #:card
+  (:export #:card
            #:id
            #:name
            #:lang
@@ -17,18 +13,17 @@
            #:scryfall-uri
            #:uri
            #:extras
-           #:password
            #:price-usd
            #:price-usd-foil
            #:price-usd-etched
            #:price-eur
            #:price-eur-foil
            #:price-eur-etched
+           #:profile
            #:updated
-           #:set
-           #:sync-models))
+           #:set))
 
-(in-package malaga/models)
+(in-package malaga/trader/models)
 
 (mito:deftable card ()
   ((name              :col-type (:varchar 2048))
@@ -52,24 +47,16 @@
    (set               :col-type (:varchar 16)))
   (:unique-keys scryfall-id scryfall-uri uri))
 
-(mito:deftable user ()
-  ((name     :col-type (:varchar 255))
-   (password :col-type (:varchar 512))
-   (profile  :col-type (or (:text) :null)))
-  (:unique-keys name))
-
-(mito:deftable role ()
-  ((name :col-type (:varchar 255)))
-  (:unique-keys name))
-
-(mito:deftable permissions ()
-  ((user  :col-type user)
-   (role :col-type role))
-  (:unique-keys (user role)))
-
 (mito:deftable collection ()
-  ((user     :col-type user)
+  ((user     :col-type malaga/admin/models:user)
    (card     :col-type card)
    (extras   :col-type (or (:varchar 512) :null))
    (quantity :col-type (or (:integer) :null)))
   (:unique-keys (user card extras)))
+
+(mito:deftable profile ()
+  ((user     :col-type malaga/admin/models:user)
+   (checksum :col-type (or (:varchar 512) :null))
+   (file     :col-type (or (:varchar 512) :null))
+   (profile  :col-type (or (:text) :null)))
+  (:unique-keys (user file)))

@@ -14,22 +14,24 @@
 
 (defparameter +app+ (make-instance 'ningle:<app>))
 
-(malaga/web/routes:defroute +app+ "/" #'malaga/views:index :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/cards" #'malaga/views:cards :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/cards/:card" #'malaga/views:card :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/players" #'malaga/views:players :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/players/:player" #'malaga/views:player :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/players/:player/cards" #'malaga/views:player-cards :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/profile" #'malaga/views:profile :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/login" #'malaga/views:login :METHOD :POST)
-(malaga/web/routes:defroute +app+ "/logout" #'malaga/views:logout :METHOD :GET)
-(malaga/web/routes:defroute +app+ "/admin" #'malaga/views:admin :METHOD :GET)
+(barghest/routes:defroute +app+ "/" #'malaga/trader/views:index :METHOD :GET)
+(barghest/routes:defroute +app+ "/cards" #'malaga/trader/views:cards :METHOD :GET)
+(barghest/routes:defroute +app+ "/cards/:card" #'malaga/trader/views:card :METHOD :GET)
+(barghest/routes:defroute +app+ "/players" #'malaga/trader/views:players :METHOD :GET)
+(barghest/routes:defroute +app+ "/players/:player" #'malaga/trader/views:player :METHOD :GET)
+(barghest/routes:defroute +app+ "/players/:player/cards" #'malaga/trader/views:player-cards :METHOD :GET)
+(barghest/routes:defroute +app+ "/profile" #'malaga/trader/views:profile :METHOD :GET)
+(barghest/routes:defroute +app+ "/login" #'malaga/admin/views:login :METHOD :POST)
+(barghest/routes:defroute +app+ "/logout" #'malaga/admin/views:logout :METHOD :GET)
+(barghest/routes:defroute +app+ "/admin" #'malaga/admin/views:admin :METHOD :GET)
+(barghest/routes:defroute +app+ "/admin/:object" #'malaga/admin/views:object :METHOD :GET)
+(barghest/routes:defroute +app+ "/admin/:object/:action" #'malaga/admin/views:object :METHOD :GET)
 
 ;; This is the way to handle missing routes
 (defmethod ningle:not-found ((this ningle:<app>))
   (declare (ignore this))
   (setf (lack.response:response-status ningle:*response*) 404)
-  (malaga/views:render "404.html"))
+  (barghest/http:render "404.html"))
 
 ;; warning: hardcoded "hunchentoot".
 (defun find-hunchentoot-thread (th) (search "hunchentoot" (bt:thread-name th)))
@@ -49,7 +51,10 @@
 
 (defun start-app (&key (server :hunchentoot) (address (or (uiop:getenv "MALAGA_ADDRESS") (machine-instance))) (port (parse-integer (uiop:getenv "MALAGA_PORT"))))
   (djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/templates/"))
-  (cerberus:setup :user-p #'malaga/auth:user-p :user-pass #'malaga/auth:user-pass :user-roles #'malaga/auth:user-roles)
+  (cerberus:setup
+   :user-p #'malaga/admin/auth:user-p
+   :user-pass #'malaga/admin/auth:user-pass
+   :user-roles #'malaga/admin/auth:user-roles)
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
 (defun stop-app (instance)
