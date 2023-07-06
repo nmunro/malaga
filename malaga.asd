@@ -16,9 +16,9 @@
                 :components
                 ((:module "admin"
                   :components
-                  ((:file "views")
-                   (:file "models")
+                  ((:file "models")
                    (:file "controllers")
+                   (:file "views")
                    (:file "auth")))
                  (:module "trader"
                   :components

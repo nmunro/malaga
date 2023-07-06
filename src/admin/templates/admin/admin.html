@@ -1,0 +1,34 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+    <h1>{{ msg }}</h1>
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Authorization</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">
+                    <a href="/admin/role">Roles</a>
+                </th>
+                <td>
+                    <a href="/admin/role/add">&#x2795;&nbsp;Add</a>
+                    &nbsp;|&nbsp;
+                    <a href="/admin/role/edit">&#x270f;&#xfe0f;&nbsp;Edit</a>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <a href="/admin/user">Users</a>
+                </th>
+                <td>
+                    <a href="/admin/user/add">&#x2795;&nbsp;Add</a>
+                    &nbsp;|&nbsp;
+                    <a href="/admin/user/edit">&#x270f;&#xfe0f;&nbsp;Edit</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

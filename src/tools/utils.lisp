@@ -1,4 +1,4 @@
-(defpackage malaga/utils
+(defpackage malaga/tools/utils
   (:use :cl)
   (:export #:download-files
            #:download-file
@@ -8,7 +8,7 @@
            #:get-data
            #:message))
 
-(in-package malaga/utils)
+(in-package malaga/tools/utils)
 
 (define-condition lock-exists-error (error)
   ((message :initarg :message :initform "lock exists" :reader message)))

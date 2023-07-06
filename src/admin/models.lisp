@@ -20,6 +20,6 @@
   (:unique-keys name))
 
 (mito:deftable permissions ()
-  ((user  :col-type user)
+  ((user :col-type user)
    (role :col-type role))
   (:unique-keys (user role)))

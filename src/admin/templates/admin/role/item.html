@@ -1,0 +1,18 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+<a href="/admin">Admin</a> > <a href="/admin/role">Roles</a>
+<h1>Roles</h1>
+<form method="POST" action="/admin/role">
+  <div class="form-group">
+    <label for="name">Name:</label>
+    {% if item %}
+      <input type="text" class="form-control" name="name" id="name" placeholder="Enter name..." value="{{ item.name }}"></input>
+    {% else %}
+      <input type="text" class="form-control" name="name" id="name" placeholder="Enter name..."></input>
+    {% endif %}
+  </div>
+
+  <br>
+  <input type="submit" value="Add" class="btn btn-primary"></input>
+</form>
+{% endblock %}

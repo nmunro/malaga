@@ -42,12 +42,12 @@
         :set (cdr (assoc :set card))))))
 
 (defun get-latest-bulk-data ()
-  (with-input-from-string (json-stream (malaga/utils:get-data (uiop:getenv "MALAGA_BULK_DATA")))
+  (with-input-from-string (json-stream (malaga/tools/utils:get-data (uiop:getenv "MALAGA_BULK_DATA")))
     (loop :for data :in (cdr (assoc :data (json:decode-json json-stream)))
           :collect `(:type ,(cdr (assoc :type data)) :uri ,(cdr (assoc :download--uri data))))))
 
 (defun sync-data ()
-  (malaga/utils:download-files (get-latest-bulk-data) (uiop:getenv "MALAGA_CARD_DATA"))
+  (malaga/tools/utils:download-files (get-latest-bulk-data) (uiop:getenv "MALAGA_CARD_DATA"))
   (format t ">>> Data Sync'd!~%")
   (format t ">>> Started: ~A~%" (local-time:now))
   (ingest-data)

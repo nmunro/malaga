@@ -1,7 +1,8 @@
 (defpackage malaga/admin/controllers
   (:use :cl)
   (:shadow #:search)
-  (:export #:search
+  (:export #:model
+           #:search
            #:stale-users
            #:+user+
            #:+role+

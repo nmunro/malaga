@@ -45,7 +45,7 @@
   (let ((profile (barghest/controllers:get malaga/trader/controllers:+profile+ :user user)))
     (setf
       (slot-value profile 'malaga/trader/models:checksum)
-      (malaga/utils:get-checksum (pathname (slot-value profile 'malaga/trader/models:file)))))
+      (malaga/tools/utils:get-checksum (pathname (slot-value profile 'malaga/trader/models:file)))))
   (mito:save-dao user))
 
 (defun create-record (user card quantity extras)
@@ -72,5 +72,5 @@
 (defun update-user-p (user)
   (let ((profile (barghest/controllers:get malaga/trader/controllers:+profile+ :user user)))
     (if (slot-boundp profile 'malaga/trader/models:checksum)
-      (string/= (slot-value profile 'malaga/trader/models:checksum) (malaga/utils:get-checksum (slot-value profile 'malaga/trader/models:file)))
+      (string/= (slot-value profile 'malaga/trader/models:checksum) (malaga/tools/utils:get-checksum (slot-value profile 'malaga/trader/models:file)))
       t)))

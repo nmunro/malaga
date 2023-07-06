@@ -1,0 +1,26 @@
+{% extends "layouts/default.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12">
+    {% if msg %}
+      <h1>{{ msg }}</h1>
+    {% endif %}
+  </div>
+</div>
+
+<form class="row g-3" action="/admin/login" method="POST">
+  <div class="col-md-6">
+    <label for="username" class="form-label">User:</label>
+    <input type="text" class="form-control" id="username" name="username">
+  </div>
+
+  <div class="col-md-6">
+    <label for="password" class="form-label">Password:</label>
+    <input type="password" class="form-control" id="password" name="password">
+  </div>
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </div>
+</form>
+{% endblock %}
