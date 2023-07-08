@@ -2,18 +2,23 @@
 {% block content %}
   <a href="/admin">Admin</a>
   <h1>Roles</h1>
-  <table class="table">
-    <thead>
-      <th><input type="checkbox"></th>
-      <th>Name</th>
-    </thead>
-    <tbody>
-      {% for object in objects %}
-        <tr>
-          <td><input type="checkbox" value={{ object.id }}></td>
-          <td><a href="/admin/role/{{ object.id }}">{{ object.name }}</a></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <form>
+    {% if csrf-token %}
+      <input type="hidden" name="csrf-token" id="csrf-token" value="{{ csrf-token }}"></input>
+    {% endif %}
+    <table class="table">
+      <thead>
+        <th><input type="checkbox"></th>
+        <th>Name</th>
+      </thead>
+      <tbody>
+        {% for object in objects %}
+          <tr>
+            <td><input type="checkbox" value={{ object.id }}></td>
+            <td><a href="/admin/role/{{ object.id }}">{{ object.name }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </form>
 {% endblock %}

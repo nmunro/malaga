@@ -4,15 +4,25 @@
 <h1>Roles</h1>
 <form method="POST" action="/admin/role">
   <div class="form-group">
+    {% if csrf-token %}
+      <input type="hidden" name="csrf-token" id="csrf-token" value="{{ csrf-token }}"></input>
+    {% endif %}
     <label for="name">Name:</label>
     {% if item %}
+      <input type="hidden" name="id" id="id" value="{{ item.id }}"></input>
       <input type="text" class="form-control" name="name" id="name" placeholder="Enter name..." value="{{ item.name }}"></input>
     {% else %}
+      <input type="hidden" name="id" id="id" value=""></input>
       <input type="text" class="form-control" name="name" id="name" placeholder="Enter name..."></input>
     {% endif %}
   </div>
 
   <br>
-  <input type="submit" value="Add" class="btn btn-primary"></input>
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <input type="submit" name="action" value="Save" class="btn btn-primary"></input>
+    {% if item %}
+      <input type="submit" name="action" value="Delete" class="btn btn-danger"></input>
+    {% endif %}
+  </div>
 </form>
 {% endblock %}

@@ -56,7 +56,8 @@
   (cerberus:setup
     :user-p #'malaga/admin/auth:user-p
     :user-pass #'malaga/admin/auth:user-pass
-    :user-roles #'malaga/admin/auth:user-roles)
+    :user-roles #'malaga/admin/auth:user-roles
+    :user-csrf-token #'malaga/admin/auth:user-csrf-token)
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
 (defun stop-app (instance)
