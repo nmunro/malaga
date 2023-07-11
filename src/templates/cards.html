@@ -46,7 +46,7 @@
           <td><a href="/cards/{{ result.card.id }}">{{ result.card.name }}</a></td>
           <td>{{ result.extras }}</td>
           {% if not player %}
-            <td><a href="/players/{{ result.user.name }}">{{ result.user.name }}</a></td>
+            <td><a href="/players/{{ result.user.name }}/profile">{{ result.user.name }}</a></td>
           {% endif %}
           <td>{{ result.quantity }}</td>
         </tr>
