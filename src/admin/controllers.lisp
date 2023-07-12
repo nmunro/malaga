@@ -4,6 +4,7 @@
   (:export #:model
            #:search
            #:stale-users
+           #:user-permissions
            #:+user+
            #:+role+
            #:+permissions+))
@@ -18,6 +19,12 @@
 
 (defclass permissions (barghest/controllers:controller)
   ((model :initarg :model :initform 'malaga/admin/models:permissions :reader model)))
+
+(defmethod user-permissions ((controller permissions) user)
+  (mito:select-dao 'malaga/admin/models:permissions
+                   (mito:includes 'malaga/admin/models:user)
+                   (mito:includes 'malaga/admin/models:role)
+                   (sxql:where (:= :user user))))
 
 (defmethod stale-users ((controller user) users)
   (mito:select-dao (model controller) (sxql:where (:not-in :name users))))

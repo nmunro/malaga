@@ -17,10 +17,10 @@
         <th>User Name</th>
       </thead>
       <tbody>
-        {% for object in objects %}
+        {% for item in items %}
           <tr>
-            <td><input name="{{ object.id }}" type="checkbox" value={{ object.id }}></td>
-            <td><a href="/admin/user/{{ object.id }}">{{ object.name }}</a></td>
+            <td><input name="{{ item.id }}" type="checkbox" value={{ item.id }}></td>
+            <td><a href="/admin/user/{{ item.id }}">{{ item.name }}</a></td>
           </tr>
         {% endfor %}
       </tbody>

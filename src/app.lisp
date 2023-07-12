@@ -26,8 +26,8 @@
 (barghest/routes:defroute +app+ "/admin/:object" #'malaga/admin/views:get :METHOD :GET)
 (barghest/routes:defroute +app+ "/admin/:object" #'malaga/admin/views:save :METHOD :POST)
 (barghest/routes:defroute +app+ "/admin/:object/add" #'malaga/admin/views:add :METHOD :GET)
-(barghest/routes:defroute +app+ "/admin/:object/:item" #'malaga/admin/views:get :METHOD :GET)
-(barghest/routes:defroute +app+ "/admin/:object/:item" #'malaga/admin/views:save :METHOD :POST)
+(barghest/routes:defroute +app+ "/admin/:object/:id" #'malaga/admin/views:get :METHOD :GET)
+(barghest/routes:defroute +app+ "/admin/:object/:id" #'malaga/admin/views:save :METHOD :POST)
 
 ;; This is the way to handle missing routes
 (defmethod ningle:not-found ((this ningle:<app>))

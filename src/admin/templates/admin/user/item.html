@@ -1,9 +1,13 @@
 {% extends "layouts/default.html" %}
 {% block content %}
 <a href="/admin">Admin</a> > <a href="/admin/user">Users</a>
-<h1>User</h1>
-<form method="POST" action="/admin/role">
-  <div class="form-group">
+{% if item.id %}
+  <form method="POST" action="/admin/user/{{ item.id }}">
+{% else %}
+  <form method="POST" action="/admin/user">
+{% endif %}
+  <div class="form-group col-xl-12">
+    <h2>User</h2>
     {% if csrf-token %}
       <input type="hidden" name="csrf-token" id="csrf-token" value="{{ csrf-token }}"></input>
     {% endif %}
@@ -17,17 +21,56 @@
 
   <div class="form-group">
     <label for="password">Password:</label>
-    {% if item %}
-      <input type="password" class="form-control" name="password" id="password" placeholder="Enter password..." value="********"></input>
-    {% else %}
-      <input type="password" class="form-control" name="password" id="password" placeholder="Enter password..."></input>
-    {% endif %}
+    <input type="password" class="form-control" name="password" id="password" placeholder="Enter password..." value="********" disabled></input>
+    <br>
+  </div>
+
+  <div class="row">
+    <div class="form-group col-xl-12">
+      <h2>Permissions</h2>
+      {% for role in roles %}
+        <input class="form-check-input" type="checkbox" name="permission" id="permission" value="{{ role.role.name }}" {% if role.selected %}checked{% endif %}>
+        <label class="form-check-label" for="permission">{{ role.role.name }}</label><br>
+      {% endfor %}
+    </div>
   </div>
 
   <br>
   <div class="btn-group" role="group" aria-label="Basic example">
-    <input type="submit" name="action" value="Save" class="btn btn-primary"></input>
-    <input type="submit" name="action" value="Delete" class="btn btn-danger"></input>
+    {% if item.id %}
+      <input type="submit" name="action" value="Save" class="btn btn-primary"></input>
+      <input type="submit" name="action" value="Delete" class="btn btn-danger"></input>
+    {% else %}
+      <input type="submit" name="action" value="Create" class="btn btn-primary"></input>
+    {% endif %}
   </div>
 </form>
+<script>
+  document.querySelector("#add-permission").addEventListener("click", function(event) {
+      event.preventDefault();
+      const roles = document.querySelectorAll(".role");
+      for (const role of roles) {
+          if (role.selected) {
+              const elm = document.createElement("option");
+              elm.setAttribute("class", "granted-role");
+              elm.setAttribute("id", role.value);
+              elm.setAttribute("name", role.value);
+              elm.setAttribute("selected", "");
+              elm.append(role.value);
+              document.querySelector("#granted-roles").append(elm);
+          }
+      }
+  });
+
+  document.querySelector("#remove-permission").addEventListener("click", function(event) {
+      event.preventDefault();
+      const roles = document.querySelectorAll(".granted-role");
+      for (const role of roles) {
+          if (role.selected) {
+            role.remove();
+          }
+      }
+  });
+  console.log("Hello Barghest");
+</script>
 {% endblock %}
