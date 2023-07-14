@@ -1,13 +1,23 @@
 {% extends "layouts/default.html" %}
 {% block content %}
-<a href="/admin">Admin</a> > <a href="/admin/user">Users</a>
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin/">Admin</a></li>
+                <li class="breadcrumb-item"><a href="/admin/user">User</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
 {% if item.id %}
   <form method="POST" action="/admin/user/{{ item.id }}">
 {% else %}
   <form method="POST" action="/admin/user">
 {% endif %}
   <div class="form-group col-xl-12">
-    <h2>User</h2>
     {% if csrf-token %}
       <input type="hidden" name="csrf-token" id="csrf-token" value="{{ csrf-token }}"></input>
     {% endif %}

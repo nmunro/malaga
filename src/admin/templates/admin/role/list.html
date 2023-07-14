@@ -1,8 +1,29 @@
 {% extends "layouts/default.html" %}
 {% block content %}
-  <a href="/admin">Admin</a>
-  <h1>Roles</h1>
+  <div class="row">
+    <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/admin/">Admin</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Roles</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
   <form>
+    <div class="row">
+      <div class="col-md-2">
+        <select class="form-control">
+          <option value="-" selected>-</option>
+          <option value="delete">Delete</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <input type="submit" name="action" value="Go" class="btn btn-primary form-control"></input>
+      </div>
+    </div>
+
     {% if csrf-token %}
       <input type="hidden" name="csrf-token" id="csrf-token" value="{{ csrf-token }}"></input>
     {% endif %}

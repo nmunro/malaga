@@ -19,20 +19,21 @@
                   ((:file "models")
                    (:file "controllers")
                    (:file "views")
+                   (:file "urls")
                    (:file "auth")))
                  (:module "trader"
                   :components
                   ((:file "models")
                    (:file "controllers")
                    (:file "views")))
-                 (:file "manage")
                  (:module "tools"
                   :components
                   ((:file "utils")
                    (:file "player")
                    (:file "scryfall")
                    (:file "main")))
-                 (:file "app"))))
+                 (:file "app")
+                 (:file "manage"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))
 

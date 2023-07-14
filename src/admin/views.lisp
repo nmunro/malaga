@@ -40,7 +40,7 @@
         (cerberus:invalid-password (err)
             (return-from login (barghest/http:render "admin/login.html" :msg (cerberus:msg err))))))
 
-  (barghest/http:redirect "/admin"))
+  (barghest/http:redirect "/admin/"))
 
 (defun logout (params)
   (when (cerberus:user-name)
@@ -143,7 +143,7 @@
 
 (defun get (params)
   (unless (cerberus:auth "admin")
-    (return-from get (barghest/http:redirect "/admin")))
+    (return-from get (barghest/http:redirect "/admin/")))
 
   (cond
     ((and (equalp (cdr (assoc :object params :test #'equal)) "user") (cdr (assoc :id params :test #'equal)))
