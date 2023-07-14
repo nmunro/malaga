@@ -13,7 +13,7 @@
 (defun index (params)
   (declare (ignore params))
   (barghest/http:render "index.html"
-    :players (barghest/controllers:all malaga/admin/controllers:+user+)
+    :players (barghest/controllers:all barghest/admin/controllers:+user+)
     :collection (malaga/trader/controllers:random
                  malaga/trader/controllers:+collection+
                  :exclude '("Island" "Plains" "Forest" "Mountain" "Swamp"))))
@@ -23,7 +23,7 @@
       (barghest/http:render "card.html" :card card :players (malaga/trader/controllers:players malaga/trader/controllers:+collection+ card))))
 
 (defun cards (params)
-    (let ((user (barghest/controllers:get-object-or-default malaga/admin/controllers:+user+ :name (cdr (assoc "player" params :test #'string=))))
+    (let ((user (barghest/controllers:get-object-or-default barghest/admin/controllers:+user+ :name (cdr (assoc "player" params :test #'string=))))
           (search (or (cdr (assoc "search" params :test #'string=)) ""))
           (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500")))
@@ -37,17 +37,17 @@
 
 (defun players (params)
   (declare (ignore params))
-  (barghest/http:render "players.html" :players (barghest/controllers:all malaga/admin/controllers:+user+)))
+  (barghest/http:render "players.html" :players (barghest/controllers:all barghest/admin/controllers:+user+)))
 
 (defun player (params)
-  (let ((user (barghest/controllers:get malaga/admin/controllers:+user+ :name (cdr (assoc :player params :test #'string=)))))
+  (let ((user (barghest/controllers:get barghest/admin/controllers:+user+ :name (cdr (assoc :player params :test #'string=)))))
     (barghest/http:render
      "player.html"
      :player user
      :profile (barghest/controllers:get malaga/trader/controllers:+profile+ :user user))))
 
 (defun player-cards (params)
-    (let ((user (barghest/controllers:get-object-or-default malaga/admin/controllers:+user+ :name (cdr (assoc :player params :test #'string=))))
+    (let ((user (barghest/controllers:get-object-or-default barghest/admin/controllers:+user+ :name (cdr (assoc :player params :test #'string=))))
           (offset (or (cdr (assoc "offset" params :test #'string=)) "0"))
           (limit (or (cdr (assoc "limit" params :test #'string=)) "500"))
           (search (or (cdr (assoc "search" params :test #'string=)) "")))

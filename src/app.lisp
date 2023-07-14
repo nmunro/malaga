@@ -13,7 +13,7 @@
 (barghest/routes:defroute +app+ "/players/:player/profile" #'malaga/trader/views:player :METHOD :GET)
 (barghest/routes:defroute +app+ "/players/:player/cards" #'malaga/trader/views:player-cards :METHOD :GET)
 
-(barghest/routes:mount +app+ "/admin" malaga/admin/urls:patterns)
+(barghest/routes:mount +app+ "/admin" barghest/admin/urls:patterns)
 
 ;; This is the way to handle missing routes
 (defmethod ningle:not-found ((this ningle:<app>))

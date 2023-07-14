@@ -23,20 +23,20 @@
   ((model :initarg :model :initform 'malaga/trader/models:profile :reader model)))
 
 (defmethod players ((controller collection) card)
-  (loop :for player :in (mito:select-dao 'malaga/trader/models:collection (mito:includes 'malaga/admin/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'malaga/admin/models:user)))
+  (loop :for player :in (mito:select-dao 'malaga/trader/models:collection (mito:includes 'barghest/admin/models:user) (sxql:where (:= :card card))) :collect (slot-value player 'barghest/admin/models:user)))
 
 (defmethod cards ((controller collection) player)
   (mito:select-dao 'malaga/trader/models:collection (mito:includes 'malaga/trader/models:card) (sxql:where (:= :user player))))
 
-(defmethod delete-before ((controller collection) (user malaga/admin/models:user) (updated string))
-  (let ((query (mito:select-dao (model controller) (mito:includes 'malaga/admin/models:user) (sxql:where (:and (:< :updated_at updated) (:= :user user))))))
+(defmethod delete-before ((controller collection) (user barghest/admin/models:user) (updated string))
+  (let ((query (mito:select-dao (model controller) (mito:includes 'barghest/admin/models:user) (sxql:where (:and (:< :updated_at updated) (:= :user user))))))
     (dolist (collection query)
         (mito:delete-dao collection))))
 
 (defmethod search ((controller collection) &key (search string) (player nil) (paginate nil) (offset 0) (limit 500))
   (let ((query (mito:select-dao (model controller)
             (mito:includes 'malaga/trader/models:card)
-            (mito:includes 'malaga/admin/models:user)
+            (mito:includes 'barghest/admin/models:user)
             (sxql:inner-join :card :on (:= :card.id :collection.card_id))
             (sxql:where (:like :name (format nil "%~A%" search)))
 

@@ -14,14 +14,7 @@
                :barghest)
   :components ((:module "src"
                 :components
-                ((:module "admin"
-                  :components
-                  ((:file "models")
-                   (:file "controllers")
-                   (:file "views")
-                   (:file "urls")
-                   (:file "auth")))
-                 (:module "trader"
+                ((:module "trader"
                   :components
                   ((:file "models")
                    (:file "controllers")

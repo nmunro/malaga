@@ -17,7 +17,7 @@
     ; Add cards
     (dolist (user-path (find-card-lists dropbox-location))
       (multiple-value-bind (user created)
-          (barghest/controllers:get-or-create malaga/admin/controllers:+user+ :name (get-username-from-path user-path))
+          (barghest/controllers:get-or-create barghest/admin/controllers:+user+ :name (get-username-from-path user-path))
         (when created
           (barghest/controllers:get-or-create malaga/trader/controllers:+profile+ :user user :file (namestring user-path)))
         (when (update-user-p user)
@@ -28,7 +28,7 @@
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
 
 (defun update-user (user)
-  (format t ">>> Processing: ~A~%" (slot-value user 'malaga/admin/models:name))
+  (format t ">>> Processing: ~A~%" (slot-value user 'barghest/admin/models:name))
   (barghest/controllers:delete malaga/trader/controllers:+collection+ :user user)
 
   (let* ((path (pathname (slot-value (barghest/controllers:get malaga/trader/controllers:+profile+ :user user) 'malaga/trader/models:file)))
@@ -62,9 +62,9 @@
 (defun clean-up-old-data (user dropbox-location now)
   (malaga/trader/controllers:delete-before malaga/trader/controllers:+collection+ user now)
 
-  (dolist (user (malaga/admin/controllers:stale-users malaga/admin/controllers:+user+ (get-list-of-players-from-files dropbox-location)))
+  (dolist (user (barghest/admin/controllers:stale-users barghest/admin/controllers:+user+ (get-list-of-players-from-files dropbox-location)))
     (barghest/controllers:delete malaga/trader/controllers:+collection+ :user user)
-    (barghest/controllers:delete malaga/admin/controllers:+user+ :name (slot-value user 'malaga/admin/models:name))))
+    (barghest/controllers:delete barghest/admin/controllers:+user+ :name (slot-value user 'barghest/admin/models:name))))
 
 (defun get-username-from-path (file)
   (car (last (pathname-directory file))))
