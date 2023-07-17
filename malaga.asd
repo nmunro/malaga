@@ -18,7 +18,8 @@
                   :components
                   ((:file "models")
                    (:file "controllers")
-                   (:file "views")))
+                   (:file "views")
+                   (:file "urls")))
                  (:module "tools"
                   :components
                   ((:file "utils")
