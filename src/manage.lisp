@@ -1,7 +1,6 @@
 (defpackage malaga/manage
   (:use :cl)
   (:export #:create-user
-           #:set-password
            #:sync-models
            #:main
            #:start-app
@@ -27,14 +26,6 @@
          :user user
          :role (barghest/controllers:get-or-create barghest/admin/controllers:+role+ :name role)))
     (format t "Initial password for ~A is: '~A', this message will not be displayed again.~%" username pass)))
-
-(defun set-password (username)
-  (format t "Please enter the new password for '~A': " username)
-  (force-output)
-
-  (let ((user (barghest/controllers:get barghest/admin/controllers:+user+ :name username)))
-    (setf (slot-value user 'barghest/admin/models:password) (cl-pass:hash (read-line) :type :pbkdf2-sha256 :iterations 10000))
-    (mito:save-dao user)))
 
 (defun sync-models ()
   (mito:ensure-table-exists 'barghest/admin/models:user)
