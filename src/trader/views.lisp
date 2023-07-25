@@ -60,4 +60,30 @@
   (barghest/http:render "trader/register.html"))
 
 (defun register-user (params)
-  (barghest/http:render "trader/register.html"))
+  (cond
+    ((cerberus:logged-in-p)
+     (return-from register-user (barghest/http:redirect "/")))
+
+    ((string= (cdr (assoc "username" params :test #'string=)) "")
+     (return-from register-user (barghest/http:render "trader/register.html" :errors "Username can't be blank")))
+
+    ((barghest/controllers:get barghest/admin/controllers:+user+ :name (cdr (assoc "username" params :test #'string=)))
+     (return-from register-user (barghest/http:render "trader/register.html" :errors "Username already in use")))
+
+    ((barghest/controllers:get barghest/admin/controllers:+user+ :email (cdr (assoc "email" params :test #'string=)))
+     (return-from register-user (barghest/http:render "trader/register.html" :errors "Email already in use")))
+
+    ((> 6 (length (cdr (assoc "password" params :test #'string=))))
+     (return-from register-user (barghest/http:render "trader/register.html" :errors "Password too short")))
+
+    ((string/= (cdr (assoc "password" params :test #'string=)) (cdr (assoc "confirm-password" params :test #'string=)))
+     (return-from register-user (barghest/http:render "trader/register.html" :errors "Passwords don't match")))
+
+    (t
+     (let* ((email (cdr (assoc "email" params :test #'string=)))
+            (password (cdr (assoc "password" params :test #'string=)))
+            (username (cdr (assoc "username" params :test #'string=)))
+            (user (barghest/auth:create-user :email email :username username)))
+       (barghest/auth:set-password username password)
+       (barghest/controllers:get-or-create malaga/trader/controllers:+profile+ :user user)
+       (return-from register-user (barghest/http:render "trader/register.html" :errors "Created user"))))))
