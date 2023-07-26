@@ -86,4 +86,5 @@
             (user (barghest/auth:create-user :email email :username username)))
        (barghest/auth:set-password username password)
        (barghest/controllers:get-or-create malaga/trader/controllers:+profile+ :user user)
-       (return-from register-user (barghest/http:render "trader/register.html" :errors "Created user"))))))
+       (cerberus:login :user username :password password)
+       (return-from register-user (barghest/http:redirect (format nil "/players/~A/profile" username)))))))
