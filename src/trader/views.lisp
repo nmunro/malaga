@@ -57,34 +57,48 @@
     (barghest/http:render "trader/login.html")))
 
 (defun register (params)
-  (barghest/http:render "trader/register.html"))
-
-(defun register-user (params)
   (cond
-    ((cerberus:logged-in-p)
-     (return-from register-user (barghest/http:redirect "/")))
+    ((and (cerberus:logged-in-p)
+          (eq :GET (lack.request:request-method ningle:*request*)))
+        (return-from register (barghest/http:redirect (format nil "/players/~A/profile" username))))
 
-    ((string= (cdr (assoc "username" params :test #'string=)) "")
-     (return-from register-user (barghest/http:render "trader/register.html" :errors "Username can't be blank")))
+    ((and (not (cerberus:logged-in-p))
+          (eq :GET (lack.request:request-method ningle:*request*)))
+        (return-from register (barghest/http:render "trader/register.html")))
 
-    ((barghest/controllers:get barghest/admin/controllers:+user+ :name (cdr (assoc "username" params :test #'string=)))
-     (return-from register-user (barghest/http:render "trader/register.html" :errors "Username already in use")))
+    ((and (cerberus:logged-in-p)
+          (eq :POST (lack.request:request-method ningle:*request*)))
+        (return-from register (barghest/http:redirect "/")))
 
-    ((barghest/controllers:get barghest/admin/controllers:+user+ :email (cdr (assoc "email" params :test #'string=)))
-     (return-from register-user (barghest/http:render "trader/register.html" :errors "Email already in use")))
+    ((and (eq :POST (lack.request:request-method ningle:*request*))
+          (string= (cdr (assoc "username" params :test #'string=)) ""))
+        (return-from register (barghest/http:render "trader/register.html" :errors "Username can't be blank")))
 
-    ((> 6 (length (cdr (assoc "password" params :test #'string=))))
-     (return-from register-user (barghest/http:render "trader/register.html" :errors "Password too short")))
+    ((and (eq :POST (lack.request:request-method ningle:*request*))
+          (barghest/controllers:get barghest/admin/controllers:+user+ :name (cdr (assoc "username" params :test #'string=))))
+        (return-from register (barghest/http:render "trader/register.html" :errors "Username already in use")))
 
-    ((string/= (cdr (assoc "password" params :test #'string=)) (cdr (assoc "confirm-password" params :test #'string=)))
-     (return-from register-user (barghest/http:render "trader/register.html" :errors "Passwords don't match")))
+    ((and (eq :POST (lack.request:request-method ningle:*request*))
+          (barghest/controllers:get barghest/admin/controllers:+user+ :email (cdr (assoc "email" params :test #'string=))))
+        (return-from register (barghest/http:render "trader/register.html" :errors "Email already in use")))
+
+    ((and (eq :POST (lack.request:request-method ningle:*request*))
+          (> 6 (length (cdr (assoc "password" params :test #'string=)))))
+        (return-from register (barghest/http:render "trader/register.html" :errors "Password too short")))
+
+    ((and (eq :POST (lack.request:request-method ningle:*request*))
+          (string/= (cdr (assoc "password" params :test #'string=)) (cdr (assoc "confirm-password" params :test #'string=))))
+        (return-from register (barghest/http:render "trader/register.html" :errors "Passwords don't match")))
+
+    ((eq :POST (lack.request:request-method ningle:*request*))
+        (let* ((email (cdr (assoc "email" params :test #'string=)))
+               (password (cdr (assoc "password" params :test #'string=)))
+               (username (cdr (assoc "username" params :test #'string=)))
+               (user (barghest/auth:create-user :email email :username username)))
+            (barghest/auth:set-password username password)
+            (barghest/controllers:get-or-create malaga/trader/controllers:+profile+ :user user)
+            (cerberus:login :user username :password password)
+            (return-from register (barghest/http:redirect (format nil "/players/~A/profile" username)))))
 
     (t
-     (let* ((email (cdr (assoc "email" params :test #'string=)))
-            (password (cdr (assoc "password" params :test #'string=)))
-            (username (cdr (assoc "username" params :test #'string=)))
-            (user (barghest/auth:create-user :email email :username username)))
-       (barghest/auth:set-password username password)
-       (barghest/controllers:get-or-create malaga/trader/controllers:+profile+ :user user)
-       (cerberus:login :user username :password password)
-       (return-from register-user (barghest/http:redirect (format nil "/players/~A/profile" username)))))))
+        (return-from register (barghest/http:not-allowed "405.html")))))
