@@ -47,11 +47,11 @@
     :user-csrf-token #'barghest/admin/auth:user-csrf-token)
   (barghest/settings:load-settings app-name)
 
-  (let ((template (format nil "templates~A" (pathname-utils:directory-separator))))
+  (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
     ;; Load static files and template files for each app
     (dolist (installed-app installed-apps)
-      (barghest/static:prepare-static-routes app-name installed-app)
-      (let ((name (format nil "~A~A" installed-app (pathname-utils:directory-separator))))
+      (barghest/static:prepare-static-routes app-name installed-app static-url)
+      (let ((name (format nil "~A~A" installed-app ppath.details.constants:+sep-string+)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" name)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" installed-app template)))))
 
