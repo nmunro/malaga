@@ -3,8 +3,6 @@
 
 (in-package malaga/trader/views)
 
-(djula:add-template-directory (asdf:system-relative-pathname "malaga" "src/trader/templates/"))
-
 (defun index (params)
   (declare (ignore params))
   (let* ((users (barghest/controllers:all barghest/admin/controllers:+user+))
