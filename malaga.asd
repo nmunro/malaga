@@ -26,6 +26,7 @@
                    (:file "player")
                    (:file "scryfall")
                    (:file "main")))
+                 (:file "settings")
                  (:file "manage"))))
   :description "Generate a skeleton for modern project"
   :in-order-to ((test-op (test-op "malaga/tests"))))

@@ -12,7 +12,7 @@
 (defparameter +app+ (make-instance 'ningle:<app>))
 
 (barghest/settings:load-settings app-name)
-(apply #'mito:connect-toplevel databases)
+(apply #'mito:connect-toplevel (getf (envy:config :malaga/settings) :database))
 
 (defun sync-models ()
   (mito:ensure-table-exists 'barghest/admin/models:user)
@@ -26,7 +26,7 @@
 (defun find-hunchentoot-thread (th)
   (search "hunchentoot" (bt:thread-name th)))
 
-(defun main (&key (server :hunchentoot) (address http-address) (port http-port))
+(defun main (&key (server :hunchentoot) (address (getf (envy:config :malaga/settings) :http-address)) (port (getf (envy:config :malaga/settings) :http-address)))
   (let ((app (start-app :server server :address address :port port)))
     ;; let the webserver run.
     (handler-case (bt:join-thread (find-if #'find-hunchentoot-thread (bt:all-threads)))
@@ -39,7 +39,7 @@
             (uiop:quit)))
         (error (c) (format t "Woops, an unknown error occured:~&~a~&" c)))))
 
-(defun start-app (&key (server :hunchentoot) (address http-address) (port http-port))
+(defun start-app (&key (server :hunchentoot) (address) (port))
   (cerberus:setup
     :user-p #'barghest/admin/auth:user-p
     :user-pass #'barghest/admin/auth:user-pass
@@ -49,8 +49,8 @@
 
   (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
     ;; Load static files and template files for each app
-    (dolist (installed-app installed-apps)
-      (barghest/static:prepare-static-routes app-name installed-app static-url)
+    (dolist (installed-app (getf (envy:config :malaga/settings) :installed-apps))
+      (barghest/static:prepare-static-routes app-name installed-app (getf (envy:config :malaga/settings) :static-url))
       (let ((name (format nil "~A~A" installed-app ppath.details.constants:+sep-string+)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" name)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" installed-app template)))))
@@ -60,7 +60,7 @@
 
   (barghest/routes:mount +app+ malaga/trader/urls:patterns)
   (barghest/routes:mount +app+ barghest/admin/urls:patterns :prefix "/admin")
-  (barghest/routes:mount +app+ barghest/static:patterns :prefix static-url)
+  (barghest/routes:mount +app+ barghest/static:patterns :prefix (getf (envy:config :malaga/settings) :static-url))
 
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
 
