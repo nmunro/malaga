@@ -48,9 +48,12 @@
   (barghest/settings:load-settings app-name)
 
   (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
-    ;; Load static files and template files for each app
+    ;; Process each app
     (dolist (installed-app (getf (envy:config :malaga/settings) :installed-apps))
+      ;; Load static files
       (barghest/static:prepare-static-routes app-name installed-app (getf (envy:config :malaga/settings) :static-url))
+
+      ;; Load template files
       (let ((name (format nil "~A~A" installed-app ppath.details.constants:+sep-string+)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" name)))
         (djula:add-template-directory (asdf:system-relative-pathname app-name (ppath:join "src" installed-app template)))))
@@ -58,8 +61,7 @@
       ;; Load global templates
       (djula:add-template-directory (asdf:system-relative-pathname "barghest" (ppath:join "src" template))))
 
-  (barghest/routes:mount +app+ malaga/trader/urls:patterns)
-  (barghest/routes:mount +app+ barghest/admin/urls:patterns :prefix "/admin")
+  (barghest/routes:mount +app+ malaga/malaga/urls:patterns)
   (barghest/routes:mount +app+ barghest/static:patterns :prefix (getf (envy:config :malaga/settings) :static-url))
 
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))

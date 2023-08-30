@@ -20,6 +20,9 @@
                    (:file "controllers")
                    (:file "views")
                    (:file "urls")))
+                 (:module "malaga"
+                  :components
+                  ((:file "urls")))
                  (:module "tools"
                   :components
                   ((:file "utils")
