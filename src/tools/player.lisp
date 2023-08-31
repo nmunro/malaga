@@ -28,10 +28,10 @@
   (mapcar #'(lambda (d) (car (last (pathname-directory d)))) (find-card-lists dropbox-location)))
 
 (defun update-user (user)
-  (format t ">>> Processing: ~A~%" (slot-value user 'barghest/admin/models:name))
+  (format t ">>> Processing: ~A~%" (slot-value user 'barghest/admin/models::name))
   (barghest/controllers:delete malaga/trader/controllers:+collection+ :user user)
 
-  (let* ((path (pathname (slot-value (barghest/controllers:get malaga/trader/controllers:+profile+ :user user) 'malaga/trader/models:file)))
+  (let* ((path (pathname (slot-value (barghest/controllers:get malaga/trader/controllers:+profile+ :user user) 'malaga/trader/models::file)))
          (headers (cl-csv:read-csv-row path))
          (csv (make-instance 'data-table:data-table :column-names headers :rows (cdr (cl-csv:read-csv path)))))
     (dotimes (row (length (data-table:rows csv)))
@@ -44,14 +44,14 @@
 
   (let ((profile (barghest/controllers:get malaga/trader/controllers:+profile+ :user user)))
     (setf
-      (slot-value profile 'malaga/trader/models:checksum)
-      (malaga/tools/utils:get-checksum (pathname (slot-value profile 'malaga/trader/models:file)))))
+      (slot-value profile 'malaga/trader/models::checksum)
+      (malaga/tools/utils:get-checksum (pathname (slot-value profile 'malaga/trader/models::file)))))
   (mito:save-dao user))
 
 (defun create-record (user card quantity extras)
   (multiple-value-bind (obj created)
       (barghest/controllers:get-or-create malaga/trader/controllers:+collection+ :user user :card card :extras extras)
-    (setf (slot-value obj 'malaga/trader/models:quantity) quantity)
+    (setf (slot-value obj 'malaga/trader/models::quantity) quantity)
     (mito:save-dao obj)))
 
 (defun find-card-lists (dropbox-location)
@@ -64,13 +64,13 @@
 
   (dolist (user (barghest/admin/controllers:stale-users barghest/admin/controllers:+user+ (get-list-of-players-from-files dropbox-location)))
     (barghest/controllers:delete malaga/trader/controllers:+collection+ :user user)
-    (barghest/controllers:delete barghest/admin/controllers:+user+ :name (slot-value user 'barghest/admin/models:name))))
+    (barghest/controllers:delete barghest/admin/controllers:+user+ :name (slot-value user 'barghest/admin/models::name))))
 
 (defun get-username-from-path (file)
   (car (last (pathname-directory file))))
 
 (defun update-user-p (user)
   (let ((profile (barghest/controllers:get malaga/trader/controllers:+profile+ :user user)))
-    (if (slot-boundp profile 'malaga/trader/models:checksum)
-      (string/= (slot-value profile 'malaga/trader/models:checksum) (malaga/tools/utils:get-checksum (slot-value profile 'malaga/trader/models:file)))
+    (if (slot-boundp profile 'malaga/trader/models::checksum)
+      (string/= (slot-value profile 'malaga/trader/models::checksum) (malaga/tools/utils:get-checksum (slot-value profile 'malaga/trader/models::file)))
       t)))

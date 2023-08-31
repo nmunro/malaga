@@ -2,26 +2,8 @@
   (:use :cl)
   (:shadow #:set)
   (:export #:card
-           #:id
-           #:name
-           #:lang
-           #:file
-           #:checksum
            #:profile
-           #:collection
-           #:quantity
-           #:scryfall-uri
-           #:uri
-           #:extras
-           #:price-usd
-           #:price-usd-foil
-           #:price-usd-etched
-           #:price-eur
-           #:price-eur-foil
-           #:price-eur-etched
-           #:profile
-           #:updated
-           #:set))
+           #:collection))
 
 (in-package malaga/trader/models)
 
