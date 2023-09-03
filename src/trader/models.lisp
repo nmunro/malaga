@@ -30,14 +30,14 @@
   (:unique-keys scryfall-id scryfall-uri uri))
 
 (mito:deftable collection ()
-  ((user     :col-type barghest/admin/models:user)
+  ((user     :col-type barghest/auth/models:user)
    (card     :col-type card)
    (extras   :col-type (or (:varchar 512) :null))
    (quantity :col-type (or (:integer) :null)))
   (:unique-keys (user card extras)))
 
 (mito:deftable profile ()
-  ((user     :col-type barghest/admin/models:user)
+  ((user     :col-type barghest/auth/models:user)
    (checksum :col-type (or (:varchar 512) :null))
    (file     :col-type (or (:varchar 512) :null))
    (profile  :col-type (or (:text) :null)))

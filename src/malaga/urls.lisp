@@ -6,4 +6,4 @@
 
 (defparameter patterns (list
     (barghest/routes:path "/" malaga/trader/urls:patterns)
-    (barghest/routes:path "/admin/" barghest/admin/urls:patterns)))
+    (barghest/routes:path "/admin" barghest/admin/urls:patterns)))

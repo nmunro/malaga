@@ -23,12 +23,6 @@
                  (:module "malaga"
                   :components
                   ((:file "urls")))
-                 (:module "tools"
-                  :components
-                  ((:file "utils")
-                   (:file "player")
-                   (:file "scryfall")
-                   (:file "main")))
                  (:file "settings")
                  (:file "manage"))))
   :description "Generate a skeleton for modern project"

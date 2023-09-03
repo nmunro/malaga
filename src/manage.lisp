@@ -33,38 +33,53 @@
 
 (defun start-app (&key (server :hunchentoot) (address) (port))
   (cerberus:setup
-    :user-p #'barghest/admin/auth:user-p
-    :user-pass #'barghest/admin/auth:user-pass
-    :user-roles #'barghest/admin/auth:user-roles
-    :user-csrf-token #'barghest/admin/auth:user-csrf-token)
+    :user-p #'barghest/auth:user-p
+    :user-pass #'barghest/auth:user-pass
+    :user-roles #'barghest/auth:user-roles
+    :user-csrf-token #'barghest/auth:user-csrf-token)
   (barghest/settings:load-settings +project-name+)
 
+  (dolist (app (getf (envy:config :malaga/settings) :installed-apps))
+    ;; find models
+    (if (str:starts-with? "barghest" app)
+        (process-barghest-app app)
+        (process-project-app app)))
+
   (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
-    (do-external-symbols (s (find-package (string-upcase "barghest/admin/models")))
-        (mito:ensure-table-exists s))
-
-    ;; Process each app
-    (dolist (installed-app (getf (envy:config :malaga/settings) :installed-apps))
-      ;; find models
-      (do-external-symbols (s (barghest/models:find-package-for-app +project-name+ installed-app))
-        (mito:ensure-table-exists s))
-
-      ;; Load static files
-      (barghest/static:prepare-static-routes +project-name+ installed-app (getf (envy:config :malaga/settings) :static-url))
-
-      ;; Load template files
-      (let ((name (format nil "~A~A" installed-app ppath.details.constants:+sep-string+)))
-        (djula:add-template-directory (asdf:system-relative-pathname +project-name+ (ppath:join "src" name)))
-        (djula:add-template-directory (asdf:system-relative-pathname +project-name+ (ppath:join "src" installed-app template)))))
-
-      ;; Load global templates
-      (djula:add-template-directory (asdf:system-relative-pathname "barghest" (ppath:join "src" template))))
+    (djula:add-template-directory (barghest/utils/tron:get-project-path "barghest")))
 
   (barghest/routes:mount +app+ malaga/malaga/urls:patterns)
   (barghest/routes:mount +app+ barghest/static:patterns :prefix (getf (envy:config :malaga/settings) :static-url))
   (barghest/admin/admin:main)
 
   (clack:clackup (lack.builder:builder :session +app+) :server server :address address :port port))
+
+(defun process-barghest-app (app)
+  (find-and-create-models app)
+  (barghest/static:prepare-static-routes +project-name+ app (getf (envy:config :malaga/settings) :static-url))
+  (find-and-load-templates app "barghest"))
+
+(defun process-project-app (app)
+  (find-and-create-models (format nil "~A/~A" +project-name+ app))
+  (barghest/static:prepare-static-routes +project-name+ app (getf (envy:config :malaga/settings) :static-url))
+  (find-and-load-templates app +project-name+))
+
+(defun find-and-create-models (app)
+  (do-external-symbols (s (find-package (string-upcase (format nil "~A/models" app))))
+    (mito:ensure-table-exists s)))
+
+(defun find-and-load-templates (app project)
+  ; if app begins with "barghest/" strip the prefix
+  (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
+    (alexandria:if-let (barghest-project (str:starts-with-p "barghest/" app))
+      (let* ((name (cadr (str:split "barghest/" app)))
+             (root (namestring (barghest/utils/tron:get-project-path project :path (ppath:join "src" name)))))
+        (djula:add-template-directory root)
+        (djula:add-template-directory (ppath:join root "templates" name)))
+
+      (let ((root (namestring (barghest/utils/tron:get-project-path project :path (ppath:join "src" app)))))
+        (djula:add-template-directory root)
+        (djula:add-template-directory (ppath:join root "templates" app))))))
 
 (defun stop-app (instance)
   (clack:stop instance))
