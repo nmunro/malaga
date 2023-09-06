@@ -46,7 +46,12 @@
         (process-project-app app)))
 
   (let ((template (format nil "templates~A" ppath.details.constants:+sep-string+)))
-    (djula:add-template-directory (barghest/utils/tron:get-project-path "barghest")))
+    (djula:add-template-directory
+     (ppath:join (namestring (barghest/utils/tron:get-project-path +project-name+))
+                 "src"
+                 +project-name+
+                 "templates"
+                 +project-name+)))
 
   (barghest/routes:mount +app+ malaga/malaga/urls:patterns)
   (barghest/routes:mount +app+ barghest/static:patterns :prefix (getf (envy:config :malaga/settings) :static-url))
@@ -56,7 +61,7 @@
 
 (defun process-barghest-app (app)
   (find-and-create-models app)
-  (barghest/static:prepare-static-routes +project-name+ app (getf (envy:config :malaga/settings) :static-url))
+  (barghest/static:prepare-static-routes "barghest" (cadr (str:split "barghest/" app)) (getf (envy:config :malaga/settings) :static-url))
   (find-and-load-templates app "barghest"))
 
 (defun process-project-app (app)
@@ -87,4 +92,4 @@
 (defmethod ningle:not-found ((this ningle:<app>))
   (declare (ignore this))
   (setf (lack.response:response-status ningle:*response*) 404)
-  (barghest/http:render "404.html"))
+  (barghest/http:render "malaga/404.html"))
